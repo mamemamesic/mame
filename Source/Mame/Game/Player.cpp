@@ -17,6 +17,10 @@ Player::Player()
             "./Resources/Model/sotai.fbx");
             //"./Resources/Model/sanaModel/mameoall.fbx");
             //"./Resources/Model/testModel/nico.fbx");
+
+        const char* const fbxName = "./Resources/Model/Collision/sqhere.fbx";
+        craSphere_.model_ = std::make_unique<Model>(graphics.GetDevice(), "./Resources/Model/Collision/sqhere.fbx");
+
     }
 }
 
@@ -47,31 +51,59 @@ void Player::Begin()
 // 更新処理
 void Player::Update(const float& elapsedTime)
 {
+    using DirectX::XMFLOAT3;
+    using DirectX::XMFLOAT4;
+    using DirectX::XMConvertToRadians;
+
     Transform* transform = GetTransform();
 
     Character::Update(elapsedTime); // キャラクター共通の更新処理
 
     Character::UpdateAnimation(elapsedTime); // アニメーション更新
 
-    const GamePad& gamePad = Input::Instance().GetGamePad();
-
     // 移動
+    const GamePad& gamePad = Input::Instance().GetGamePad();
     {
         const float aLx = gamePad.GetAxisLX();
         const float aLy = gamePad.GetAxisLY();
 
-        DirectX::XMFLOAT3 pos = transform->GetPosition();
-        if (aLx > 0.0f) pos.x += elapsedTime;
-        if (aLx < 0.0f) pos.x -= elapsedTime;
-        if (aLy > 0.0f) pos.z += elapsedTime;
-        if (aLy < 0.0f) pos.z -= elapsedTime;
+        XMFLOAT3 pos = transform->GetPosition();
+        constexpr float addPos = 3.0f;
+        if (aLx != 0.0f) pos.x += ((aLx * addPos) * elapsedTime);
+        if (aLy != 0.0f) pos.z += ((aLy * addPos) * elapsedTime);
 
         // 位置更新
         transform->SetPosition(pos);
     }
 
-    // 近接攻撃処理
-    if (InputCloseRangeAttack()) CloseRangeAttack();
+    // 回転（確認用）
+    {
+        const float aRx = gamePad.GetAxisRX();
+        const float aRy = gamePad.GetAxisRY();
+
+        XMFLOAT4 rotation = transform->GetRotation();
+        constexpr float addRotate = 90.0f;
+
+        if (aRx != 0.0f)
+        {
+            const float addRotateY = XMConvertToRadians(aRx * addRotate);
+            rotation.y += (addRotateY * elapsedTime);
+        }
+        if (aRy != 0.0f)
+        {
+            const float addRotateX = XMConvertToRadians(aRy * addRotate);
+            rotation.x += (addRotateX * elapsedTime);
+        }
+
+        // 回転値更新
+        transform->SetRotation(rotation);
+    }
+
+    // 近接攻撃入力処理
+    if (InputCloseRangeAttack() == true) CloseRangeAttack();
+
+    // 近接攻撃更新処理
+    UpdateCloseRangeAttack(elapsedTime);
 
 }
 
@@ -84,6 +116,15 @@ void Player::End()
 void Player::Render(const float& elapsedTime, const float& scale)
 {
     Character::Render(elapsedTime, scale);
+
+    // 近接攻撃用の球体描画
+#ifdef _DEBUG
+    if (craSphere_.lifeTimer_ > 0.0f)
+    {
+        const float range = craSphere_.radius_ * 2.0f;
+        craSphere_.model_->Render(range, 1);
+    }
+#endif // _DEBUG
 }
 
 // ImGui用
@@ -104,7 +145,7 @@ bool Player::InputCloseRangeAttack()
 {
     const GamePad& gamePad = Input::Instance().GetGamePad();
 
-    if (gamePad.GetButtonDown() & GamePad::BTN_START)
+    if (gamePad.GetButtonDown() & GamePad::BTN_A)
     {
         return true;
     }
@@ -116,17 +157,24 @@ void Player::CloseRangeAttack()
 {
     using DirectX::XMFLOAT3;
 
-    const Transform* transform = GetTransform();
-    const XMFLOAT3   forward   = transform->CalcForward();
+    const Transform* transform  = GetTransform();
+    const XMFLOAT3   plPosition = transform->GetPosition();
+    const XMFLOAT3   forward    = transform->CalcForward();
+
+    const float radius = 0.25f;             // 半径
+    const float length = (0.1f + radius);   // 半径の大きさによって距離が調整されるようにする
 
     // プレイヤーの前らへんに位置を設定
-    XMFLOAT3 position = forward;
-    position.z *= 1.5f;
+    const XMFLOAT3 spherePosition = {
+        plPosition.x + (forward.x * length),
+        plPosition.y + (forward.y * length) + offsetY,
+        plPosition.z + (forward.z * length),
+    };
 
-    const float radius = 0.5f;      // 半径
-    const float lifeTime = 0.1f;    // 生存時間
+    const float lifeTime = 0.5f;    // 生存時間
 
-    CreateCloseRangeAttackSphere(position, radius, lifeTime); // 近接攻撃用の球体生成
+    // 近接攻撃用の球体生成
+    CreateCloseRangeAttackSphere(spherePosition, radius, lifeTime);
 }
 
 void Player::CreateCloseRangeAttackSphere(
@@ -134,16 +182,17 @@ void Player::CreateCloseRangeAttackSphere(
     const float radius,
     const float lifeTime)
 {
-    craSphere_.position_  = pos;
+    craSphere_.model_->GetTransform()->SetPosition(pos);
     craSphere_.radius_    = radius;
     craSphere_.lifeTimer_ = lifeTime;
 }
 
-void Player::UpdateCRASphere(const float elapsedTime)
+void Player::UpdateCloseRangeAttack(const float elapsedTime)
 {
     if (craSphere_.lifeTimer_ <= 0.0f) return;
 
     craSphere_.lifeTimer_ -= elapsedTime;
 
+    // 球体と敵との衝突処理
     //CollisionCRASphereVsEnemies();
 }

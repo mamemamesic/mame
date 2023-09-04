@@ -6,7 +6,7 @@
 #include "../Graphics/ShadowMap.h"
 #include "../Resource/sprite.h"
 
-#define SKY_BOX 1
+//#define SKY_BOX 1
 
 
 class SceneGame : public Mame::Scene::BaseScene

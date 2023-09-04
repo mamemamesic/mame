@@ -87,11 +87,11 @@ void SceneGame::Update(const float& elapsedTime)
     const GamePad& gamePad = Input::Instance().GetGamePad();
 
     // タイトル遷移
-    if (gamePad.GetButtonDown() & GamePad::BTN_A)
-    {
-        Mame::Scene::SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle));
-        return;
-    }
+    //if (gamePad.GetButtonDown() & GamePad::BTN_A)
+    //{
+    //    Mame::Scene::SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle));
+    //    return;
+    //}
 
     // 更新
     {

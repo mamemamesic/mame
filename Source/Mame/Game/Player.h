@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Character.h"
+#include <memory>
 
 class Player : public Character
 {
@@ -13,17 +14,18 @@ public: // enum関連
     };
 
 private: // enum関連
+
     // アニメーション
     enum class Animation
     {
     };
 
     // 近接攻撃用の球体構造体
-    struct CRASphere
+    struct CloseRangeAttackSphere
     {
-        DirectX::XMFLOAT3 position_ = {};   // 位置
-        float radius_    = 0.5f;            // 半径
-        float lifeTimer_ = 0.0f;            // 生存タイマー
+        std::unique_ptr<Model> model_ = {};  // モデル情報
+        float radius_    = 0.0f;             // 半径
+        float lifeTimer_ = 0.0f;             // 生存タイマー
     };
 
 public:
@@ -51,10 +53,12 @@ public:
         const float lifeTime
     );
 
-    void UpdateCRASphere(const float elapsedTime);
+    void UpdateCloseRangeAttack(const float elapsedTime);
 
 private:
-    CRASphere craSphere_; // 近接攻撃用の球体
+    CloseRangeAttackSphere craSphere_ = {}; // 近接攻撃用の球体
+
+    float offsetY = 0.5f;
 
 };
 
