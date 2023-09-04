@@ -18,6 +18,14 @@ private: // enum関連
     {
     };
 
+    // 近接攻撃用の球体構造体
+    struct CRASphere
+    {
+        DirectX::XMFLOAT3 position_ = {};   // 位置
+        float radius_    = 0.5f;            // 半径
+        float lifeTimer_ = 0.0f;            // 生存タイマー
+    };
+
 public:
     Player();
     ~Player() override;
@@ -32,5 +40,21 @@ public:
     void Render(const float& elapsedTime, const float& scale) override; // 描画処理
 
     void DrawDebug() override;  // ImGui用
+
+    bool InputCloseRangeAttack();   // 近接攻撃入力
+    void CloseRangeAttack();        // 近接攻撃
+
+    // 近接攻撃用の球体生成
+    void CreateCloseRangeAttackSphere(
+        const DirectX::XMFLOAT3& pos,
+        const float radius,
+        const float lifeTime
+    );
+
+    void UpdateCRASphere(const float elapsedTime);
+
+private:
+    CRASphere craSphere_; // 近接攻撃用の球体
+
 };
 
