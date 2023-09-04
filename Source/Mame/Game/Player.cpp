@@ -4,6 +4,7 @@
 #include "../Input/Input.h"
 
 #include "AbilityManager.h"
+#include <memory>
 
 // コンストラクタ
 Player::Player()

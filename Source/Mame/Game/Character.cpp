@@ -45,7 +45,8 @@ void Character::Render(const float& elapsedTime, const float& scale)
     model->Render(scale);
 
 #ifdef _DEBUG
-    if(SceneDemo::isDebugRender)debugSqhere->Render(1.0f, 1);
+    //if(SceneDemo::isDebugRender)debugSqhere->Render(1.0f, 1);
+    if (SceneDemo::isDebugRender) debugSqhere->Render(this->range, 1);
 #endif // _DEBUG
 }
 

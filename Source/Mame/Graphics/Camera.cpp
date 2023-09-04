@@ -30,7 +30,7 @@ void Camera::Update()
     const DirectX::XMFLOAT3 playerPos = playerTransform->GetPosition();
     const DirectX::XMFLOAT4 playerRot = playerTransform->GetRotation();
     const DirectX::XMFLOAT3 playerFrontVec = playerTransform->CalcForward();
-    
+
     // カメラ位置をプレイヤーの後ろにしたい
     {
         float length = 5.0f;
@@ -95,7 +95,7 @@ void Camera::UpdateDebug(const float& elapsedTime, DirectX::XMFLOAT2 moveVector)
 
     if (rotation.y >= DirectX::XMConvertToRadians(360))rotation.y -= DirectX::XMConvertToRadians(360);
     if (rotation.y <= DirectX::XMConvertToRadians(0))rotation.y += DirectX::XMConvertToRadians(360);
-    
+
     transform.SetPosition(position);
     transform.SetRotation(rotation);
 #else
@@ -114,7 +114,7 @@ void Camera::UpdateDebug(const float& elapsedTime, DirectX::XMFLOAT2 moveVector)
         speed *= (speed > 0) ? -1 : 1;
     else
         speed *= (speed < 0) ? -1 : 1;
-    
+
     if (aLx <= -0.3f)position.x -= speed;   // 左
     if (aLx >=  0.3f)position.x += speed;   // 右
     if (aLy <= -0.3f)position.z -= speed;   // 後
@@ -137,7 +137,7 @@ void Camera::SetPerspectiveFov(ID3D11DeviceContext* dc)
 
     float aspect_ratio{ viewport.Width / viewport.Height };
     P = { DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(30),aspect_ratio,0.1f,1000.0f) };
-    
+
     DirectX::XMFLOAT3 pos = transform.GetPosition();
     DirectX::XMFLOAT3 forward = transform.CalcForward();
     DirectX::XMVECTOR eye{ DirectX::XMVectorSet(pos.x,pos.y,pos.z,1.0f) };
