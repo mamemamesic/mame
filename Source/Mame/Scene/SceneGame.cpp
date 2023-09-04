@@ -3,15 +3,48 @@
 #include "../Graphics/Graphics.h"
 #include "../Input/Input.h"
 
-#include "SceneManager.h"
-#include "SceneLoading.h"
-#include "SceneTitle.h"
+#include "../Graphics/EffectManager.h"
+
+#include "../Other/misc.h"
 
 #include "../Graphics/Camera.h"
 #include "../Game/PlayerManager.h"
 
+#include "SceneManager.h"
+#include "SceneLoading.h"
+#include "SceneTitle.h"
+
+
+// リソース生成
 void SceneGame::CreateResource()
 {
+    Graphics& graphics = Graphics::Instance();
+
+    // SkyBox
+    {
+#if SKY_BOX
+        skyBoxSprite = std::make_shared<Sprite>(graphics.GetDevice(),
+            L"./Resources/Image/SkyBox/Data/beautiful_sky.jpg");
+
+        skyBox = std::make_unique<SkyBox>(graphics.GetDevice(), skyBoxSprite);
+#endif// SKY_BOX
+    }
+
+    // SHADOW
+    shadow.shadowMap = std::make_unique<ShadowMap>(graphics.GetDevice(),
+        shadow.shadowMapWidth, shadow.shadowMapHeight);
+    {
+        HRESULT hr{ S_OK };
+        D3D11_BUFFER_DESC desc{};
+        desc.ByteWidth = sizeof(Shader::SceneConstants);
+        desc.Usage = D3D11_USAGE_DEFAULT;
+        desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        desc.CPUAccessFlags = 0;
+        desc.MiscFlags = 0;
+        desc.StructureByteStride = 0;
+        hr = graphics.GetDevice()->CreateBuffer(&desc, nullptr, SceneConstantBuffer.GetAddressOf());
+        _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+    }
 }
 
 // 初期化
@@ -53,6 +86,7 @@ void SceneGame::Update(const float& elapsedTime)
 {
     const GamePad& gamePad = Input::Instance().GetGamePad();
 
+    // タイトル遷移
     if (gamePad.GetButtonDown() & GamePad::BTN_A)
     {
         Mame::Scene::SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle));
@@ -61,10 +95,40 @@ void SceneGame::Update(const float& elapsedTime)
 
     // 更新
     {
+
+#ifdef _DEBUG
+        // Debug用カメラ
+        if (gamePad.GetButtonDown() & GamePad::BTN_X)isDebugCamera = isDebugCamera ? false : true;
+        if (isDebugCamera)
+        {
+            int posX = 1980 / 2;
+            int posY = 1080 / 2;
+
+            POINT pos;
+            GetCursorPos(&pos);
+
+            DirectX::XMFLOAT2 nowPosition{ static_cast<float>(pos.x),static_cast<float>(pos.y) };
+            DirectX::XMFLOAT2 oldPosition{ static_cast<float>(posX),static_cast<float>(posY) };
+            DirectX::XMVECTOR nowVector = DirectX::XMLoadFloat2(&nowPosition);
+            DirectX::XMVECTOR oldVector = DirectX::XMLoadFloat2(&oldPosition);
+            DirectX::XMVECTOR moveVector = DirectX::XMVectorSubtract(nowVector, oldVector);
+            DirectX::XMFLOAT2 moveVectorFloat2;
+            DirectX::XMStoreFloat2(&moveVectorFloat2, moveVector);
+
+            Camera::Instance().UpdateDebug(elapsedTime, moveVectorFloat2);
+
+            SetCursorPos(posX, posY);
+        }
+        else
+#else
         Camera::Instance().Update(); // カメラ更新
+#endif // _DEBUG
 
         PlayerManager::Instance().Update(elapsedTime); // プレイヤー更新
+
+        EffectManager::Instance().Update(elapsedTime); // エフェクト更新処理
     }
+
 }
 
 // Updateの後に呼び出される
@@ -77,23 +141,100 @@ void SceneGame::End()
 void SceneGame::Render(const float& elapsedTime)
 {
     Graphics& graphics = Graphics::Instance();
-    ID3D11DeviceContext*    immediate_context  = graphics.GetDeviceContext();
-    ID3D11RenderTargetView* render_target_view = graphics.GetRenderTargetView();
-    ID3D11DepthStencilView* depth_stencil_view = graphics.GetDepthStencilView();
 
-    FLOAT color[]{ 0.2f, 0.2f, 1.0f, 1.0f };
-    immediate_context->ClearRenderTargetView(render_target_view, color);
-    immediate_context->ClearDepthStencilView(depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-    immediate_context->OMSetRenderTargets(1, &render_target_view, depth_stencil_view);
+    // 描画の初期設定
+    {
+        ID3D11DeviceContext* deviceContext = graphics.GetDeviceContext();
+        ID3D11RenderTargetView* renderTargetView = graphics.GetRenderTargetView();
+        ID3D11DepthStencilView* depthStencilView = graphics.GetDepthStencilView();
 
-    RenderContext rc = {};
-    rc.lightDirection = { 0.0f, -1.0f, 0.0f, 0.0f };
+        FLOAT color[]{ 0.2f, 0.2f, 1.0f, 1.0f };
+        deviceContext->ClearRenderTargetView(renderTargetView, color);
+        deviceContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+        deviceContext->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 
-    Shader* shader = graphics.GetShader();
-    shader->Begin(graphics.GetDeviceContext(), rc);
+#if SKY_BOX
+        skyBox->Render(graphics.GetDeviceContext(),
+            Camera::Instance().GetViewMatrix(), Camera::Instance().GetProjectionMatrix());
+#endif// SKY_BOX
 
-    constexpr float playerScaleFactor = 0.01f;
-    PlayerManager::Instance().Render(elapsedTime, playerScaleFactor);
+        // SHADOW
+        Shader::SceneConstants sceneConstant{};
+        sceneConstant.lightDirection = graphics.GetShader()->view.position;
+        sceneConstant.cameraPosition = graphics.GetShader()->view.camera;
+
+        // SHADOW : make shadow map
+        {
+            const float aspectRatio = shadow.shadowMap->viewport.Width / shadow.shadowMap->viewport.Height;
+            DirectX::XMVECTOR F =
+            {
+                DirectX::XMLoadFloat4(&shadow.lightViewFocus)
+            };
+            DirectX::XMVECTOR E =
+            {
+                DirectX::XMVectorSubtract(F,
+                DirectX::XMVectorScale(
+                    DirectX::XMVector3Normalize(
+                        DirectX::XMLoadFloat4(&graphics.GetShader()->view.position)),shadow.lightViewDistance))
+            };
+            DirectX::XMVECTOR U =
+            {
+                DirectX::XMVectorSet(0.0f,1.0f,0.0f,0.0f)
+            };
+            DirectX::XMMATRIX V =
+            {
+                DirectX::XMMatrixLookAtLH(E,F,U)
+            };
+            DirectX::XMMATRIX P =
+            {
+                DirectX::XMMatrixOrthographicLH(shadow.lightViewSize * aspectRatio,
+                shadow.lightViewSize,shadow.lightViewNearZ,shadow.lightViewFarZ)
+            };
+
+            DirectX::XMStoreFloat4x4(&sceneConstant.viewProjection, V * P);
+            sceneConstant.lightViewProjection = sceneConstant.viewProjection;
+            deviceContext->UpdateSubresource(SceneConstantBuffer.Get(), 0, 0, &sceneConstant, 0, 0);
+            deviceContext->VSSetConstantBuffers(1, 1, SceneConstantBuffer.GetAddressOf());
+
+            shadow.shadowMap->Clear(deviceContext, 1.0f);
+            shadow.shadowMap->Activate(deviceContext);
+
+            // SHADOW : 影つけたいモデルはここにRenderする
+            {
+                //PlayerManager::Instance().Render(elapsedTime, playerScaleFactor);
+                //
+                //enemySlime[0]->Render(elapsedTime, enemyScaleFactor);
+                //enemySlime[1]->Render(elapsedTime, enemyScaleFactor);
+            }
+
+            shadow.shadowMap->Deactivete(deviceContext);
+        }
+
+        // カメラ関係
+        RenderContext rc;
+        rc.lightDirection = { 0.0f, -1.0f, 0.0f, 0.0f };
+
+        Shader* shader = graphics.GetShader();
+        shader->Begin(graphics.GetDeviceContext(), rc);
+    }
+
+    // MODEL_RENDER
+    // 描画したいものは個々に書く
+    {
+        constexpr float playerScaleFactor = 0.01f;
+        PlayerManager::Instance().Render(elapsedTime, playerScaleFactor);
+    }
+
+    // 3Dエフェクト描画
+    {
+        Camera& camera = Camera::Instance();
+        DirectX::XMFLOAT4X4 view, projection;
+        DirectX::XMStoreFloat4x4(&view, camera.GetViewMatrix());
+        DirectX::XMStoreFloat4x4(&projection, camera.GetProjectionMatrix());
+
+        EffectManager::Instance().Render(view, projection);
+    }
+
 }
 
 // debug用
