@@ -1,5 +1,7 @@
 #pragma once
 
+//#pragma comment (lib,"fbxsdk.h")
+
 #include <d3d11.h>
 #include <wrl.h>
 
