@@ -11,10 +11,24 @@
 
 #include "../Other/misc.h"
 
+#include "../Game/PlayerManager.h"
+
 // リソース生成
 void SceneGame::CreateResource()
 {
     Graphics& graphics = Graphics::Instance();
+
+    SetStates();
+
+    // Stage
+    {
+        stage = std::make_unique<Stage>("./Resources/Model/stage.fbx");
+    }
+
+    // player
+    {
+        PlayerManager::Instance().GetPlayer() = std::make_unique<Player>();
+    }
 
     // SkyBox
     {
@@ -48,11 +62,19 @@ void SceneGame::Initialize()
 {
     // カメラ
     Camera::Instance().Initialize();
+
+    // stage
+    stage->Initialize();
+
+    // player
+    PlayerManager::Instance().Initialize();
 }
 
 // 終了化
 void SceneGame::Finalize()
 {
+    // player
+    PlayerManager::Instance().Finalize();
 }
 
 // Updateの前に呼び出される
@@ -64,9 +86,10 @@ void SceneGame::Begin()
 void SceneGame::Update(const float& elapsedTime)
 {
     GamePad& gamePad = Input::Instance().GetGamePad();
+    //if (gamePad.GetButtonDown() & GamePad::BTN_A)
+    //    Mame::Scene::SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle));
 
-    if (gamePad.GetButtonDown() & GamePad::BTN_A)
-        Mame::Scene::SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle));
+
 
 #ifdef _DEBUG
     // Debug用カメラ
@@ -93,6 +116,9 @@ void SceneGame::Update(const float& elapsedTime)
     }
     else
 #endif // _DEBUG
+    
+    // player
+    PlayerManager::Instance().Update(elapsedTime);
 
     // エフェクト更新処理
     EffectManager::Instance().Update(elapsedTime);
@@ -108,6 +134,9 @@ void SceneGame::Render(const float& elapsedTime)
 {
     Graphics& graphics = Graphics::Instance();
     
+    // scaleFactor
+    float playerScaleFactor = 0.01f;
+
     // 描画の初期設定
     {
         ID3D11DeviceContext* deviceContext = graphics.GetDeviceContext();
@@ -167,10 +196,7 @@ void SceneGame::Render(const float& elapsedTime)
 
             // SHADOW : 影つけたいモデルはここにRenderする
             {
-                //PlayerManager::Instance().Render(elapsedTime, playerScaleFactor);
-                //
-                //enemySlime[0]->Render(elapsedTime, enemyScaleFactor);
-                //enemySlime[1]->Render(elapsedTime, enemyScaleFactor);
+                PlayerManager::Instance().Render(elapsedTime, playerScaleFactor);                
             }
 
             shadow.shadowMap->Deactivete(deviceContext);
@@ -181,12 +207,21 @@ void SceneGame::Render(const float& elapsedTime)
         rc.lightDirection = { 0.0f, -1.0f, 0.0f, 0.0f };
 
         Shader* shader = graphics.GetShader();
-        shader->Begin(graphics.GetDeviceContext(), rc);
+        shader->Begin(graphics.GetDeviceContext(), rc, sceneConstant);
+
+        // SHADOW : bind shadow map at slot 8
+        deviceContext->PSSetShaderResources(8, 1, shadow.shadowMap->shaderResourceView.GetAddressOf());
     }
 
     // MODEL_RENDER
     // 描画したいものは個々に書く
     {
+        // stage
+        stage->Render(1.0f);
+
+        // player
+        PlayerManager::Instance().Render(elapsedTime, playerScaleFactor);
+
     }
 
     // 3Dエフェクト描画
@@ -203,6 +238,179 @@ void SceneGame::Render(const float& elapsedTime)
 // debug用
 void SceneGame::DrawDebug()
 {
+#if USE_IMGUI
     // カメラ
     Camera::Instance().DrawDebug();
+
+    stage->DrawDebug();
+
+    // player
+    PlayerManager::Instance().DrawDebug();
+
+#endif// USE_IMGUI
+}
+
+void SceneGame::SetStates()
+{
+    Graphics& graphics = Graphics::Instance();
+    HRESULT hr{ S_OK };
+
+    D3D11_SAMPLER_DESC samplerDesc{};
+    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.MipLODBias = 0;
+    samplerDesc.MaxAnisotropy = 16;
+    samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+    samplerDesc.BorderColor[0] = 0;
+    samplerDesc.BorderColor[1] = 0;
+    samplerDesc.BorderColor[2] = 0;
+    samplerDesc.BorderColor[3] = 0;
+    samplerDesc.MinLOD = 0;
+    samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+    hr = graphics.GetDevice()->CreateSamplerState(&samplerDesc, samplerStates[static_cast<size_t>(SAMPLER_STATE::POINT)].GetAddressOf());
+    _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+
+    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    hr = graphics.GetDevice()->CreateSamplerState(&samplerDesc, samplerStates[static_cast<size_t>(SAMPLER_STATE::LINEAR)].GetAddressOf());
+    _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+
+    samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    hr = graphics.GetDevice()->CreateSamplerState(&samplerDesc, samplerStates[static_cast<size_t>(SAMPLER_STATE::ANISOTROPIC)].GetAddressOf());
+    _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+
+    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+    samplerDesc.BorderColor[0] = 0;
+    samplerDesc.BorderColor[1] = 0;
+    samplerDesc.BorderColor[2] = 0;
+    samplerDesc.BorderColor[3] = 0;
+    hr = graphics.GetDevice()->CreateSamplerState(&samplerDesc, samplerStates[static_cast<size_t>(SAMPLER_STATE::LINEAR_BORDER_BLACK)].GetAddressOf());
+    _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+
+    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+    samplerDesc.BorderColor[0] = 1;
+    samplerDesc.BorderColor[1] = 1;
+    samplerDesc.BorderColor[2] = 1;
+    samplerDesc.BorderColor[3] = 1;
+    hr = graphics.GetDevice()->CreateSamplerState(&samplerDesc, samplerStates[static_cast<size_t>(SAMPLER_STATE::LINEAR_BORDER_WHITE)].GetAddressOf());
+    _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+
+    D3D11_DEPTH_STENCIL_DESC depth_stencil_desc{};
+    depth_stencil_desc.DepthEnable = TRUE;
+    depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    depth_stencil_desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+    hr = graphics.GetDevice()->CreateDepthStencilState(&depth_stencil_desc, depthStencilStates[static_cast<size_t>(DEPTH_STATE::ZT_ON_ZW_ON)].GetAddressOf());
+    _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+    depth_stencil_desc.DepthEnable = TRUE;
+    depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+    depth_stencil_desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+    hr = graphics.GetDevice()->CreateDepthStencilState(&depth_stencil_desc, depthStencilStates[static_cast<size_t>(DEPTH_STATE::ZT_ON_ZW_OFF)].GetAddressOf());
+    _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+    depth_stencil_desc.DepthEnable = FALSE;
+    depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    depth_stencil_desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+    hr = graphics.GetDevice()->CreateDepthStencilState(&depth_stencil_desc, depthStencilStates[static_cast<size_t>(DEPTH_STATE::ZT_OFF_ZW_ON)].GetAddressOf());
+    _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+    depth_stencil_desc.DepthEnable = FALSE;
+    depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+    depth_stencil_desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+    hr = graphics.GetDevice()->CreateDepthStencilState(&depth_stencil_desc, depthStencilStates[static_cast<size_t>(DEPTH_STATE::ZT_OFF_ZW_OFF)].GetAddressOf());
+    _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+
+    D3D11_BLEND_DESC blend_desc{};
+    blend_desc.AlphaToCoverageEnable = FALSE;
+    blend_desc.IndependentBlendEnable = FALSE;
+    blend_desc.RenderTarget[0].BlendEnable = FALSE;
+    blend_desc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+    blend_desc.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
+    blend_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    blend_desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+    blend_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+    blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+    hr = graphics.GetDevice()->CreateBlendState(&blend_desc, blendStates[static_cast<size_t>(BLEND_STATE::NONE)].GetAddressOf());
+    _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+    blend_desc.AlphaToCoverageEnable = FALSE;
+    blend_desc.IndependentBlendEnable = FALSE;
+    blend_desc.RenderTarget[0].BlendEnable = TRUE;
+    blend_desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+    blend_desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+    blend_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    blend_desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+    blend_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+    blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+    hr = graphics.GetDevice()->CreateBlendState(&blend_desc, blendStates[static_cast<size_t>(BLEND_STATE::ALPHA)].GetAddressOf());
+    _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+    blend_desc.AlphaToCoverageEnable = FALSE;
+    blend_desc.IndependentBlendEnable = FALSE;
+    blend_desc.RenderTarget[0].BlendEnable = TRUE;
+    blend_desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA; //D3D11_BLEND_ONE D3D11_BLEND_SRC_ALPHA
+    blend_desc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+    blend_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    blend_desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
+    blend_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+    blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+    hr = graphics.GetDevice()->CreateBlendState(&blend_desc, blendStates[static_cast<size_t>(BLEND_STATE::ADD)].GetAddressOf());
+    _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+    blend_desc.AlphaToCoverageEnable = FALSE;
+    blend_desc.IndependentBlendEnable = FALSE;
+    blend_desc.RenderTarget[0].BlendEnable = TRUE;
+    blend_desc.RenderTarget[0].SrcBlend = D3D11_BLEND_ZERO; //D3D11_BLEND_DEST_COLOR
+    blend_desc.RenderTarget[0].DestBlend = D3D11_BLEND_SRC_COLOR; //D3D11_BLEND_SRC_COLOR
+    blend_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    blend_desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_DEST_ALPHA;
+    blend_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+    blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+    hr = graphics.GetDevice()->CreateBlendState(&blend_desc, blendStates[static_cast<size_t>(BLEND_STATE::MULTIPLY)].GetAddressOf());
+    _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+
+    D3D11_RASTERIZER_DESC rasterizer_desc{};
+    rasterizer_desc.FillMode = D3D11_FILL_SOLID;
+    rasterizer_desc.CullMode = D3D11_CULL_BACK;
+    // UNIT.21
+    //rasterizer_desc.FrontCounterClockwise = FALSE;
+    rasterizer_desc.FrontCounterClockwise = TRUE;
+    rasterizer_desc.DepthBias = 0;
+    rasterizer_desc.DepthBiasClamp = 0;
+    rasterizer_desc.SlopeScaledDepthBias = 0;
+    rasterizer_desc.DepthClipEnable = TRUE;
+    rasterizer_desc.ScissorEnable = FALSE;
+    rasterizer_desc.MultisampleEnable = FALSE;
+    rasterizer_desc.AntialiasedLineEnable = FALSE;
+    hr = graphics.GetDevice()->CreateRasterizerState(&rasterizer_desc, rasterizerStates[static_cast<size_t>(RASTER_STATE::SOLID)].GetAddressOf());
+    _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+
+    rasterizer_desc.FillMode = D3D11_FILL_WIREFRAME;
+    rasterizer_desc.CullMode = D3D11_CULL_BACK;
+    rasterizer_desc.AntialiasedLineEnable = TRUE;
+    hr = graphics.GetDevice()->CreateRasterizerState(&rasterizer_desc, rasterizerStates[static_cast<size_t>(RASTER_STATE::WIREFRAME)].GetAddressOf());
+    _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+
+    rasterizer_desc.FillMode = D3D11_FILL_SOLID;
+    rasterizer_desc.CullMode = D3D11_CULL_NONE;
+    rasterizer_desc.AntialiasedLineEnable = TRUE;
+    hr = graphics.GetDevice()->CreateRasterizerState(&rasterizer_desc, rasterizerStates[static_cast<size_t>(RASTER_STATE::CULL_NONE)].GetAddressOf());
+    _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+
+    rasterizer_desc.FillMode = D3D11_FILL_WIREFRAME;
+    rasterizer_desc.CullMode = D3D11_CULL_NONE;
+    rasterizer_desc.AntialiasedLineEnable = TRUE;
+    hr = graphics.GetDevice()->CreateRasterizerState(&rasterizer_desc, rasterizerStates[static_cast<size_t>(RASTER_STATE::WIREFRAME_CULL_NONE)].GetAddressOf());
+    _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 }

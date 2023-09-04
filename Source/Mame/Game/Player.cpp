@@ -13,7 +13,8 @@ Player::Player()
     // モデル生成
     {
         model = std::make_unique<Model>(graphics.GetDevice(),
-            "./Resources/Model/sotai.fbx");
+            "./Resources/Model/sikaku.fbx");
+            //"./Resources/Model/sotai.fbx");
             //"./Resources/Model/sanaModel/mameoall.fbx");
             //"./Resources/Model/testModel/nico.fbx");
     }
@@ -31,6 +32,8 @@ void Player::Initialize()
 
     // 待機アニメーションに設定してる
     Character::PlayAnimation(0, true);
+
+    GetTransform()->SetScaleFactor(50.0f);
 }
 
 // 終了化

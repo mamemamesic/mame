@@ -9,13 +9,20 @@ Stage::Stage()
     model = std::make_unique<Model>(graphics.GetDevice(), "./Resources/Model/Stage/plane.fbx");
 }
 
+Stage::Stage(const char* filename)
+{
+    Graphics& graphics = Graphics::Instance();
+
+    model = std::make_unique<Model>(graphics.GetDevice(), filename);
+}
+
 Stage::~Stage()
 {
 }
 
 void Stage::Initialize()
 {
-    GetTransform()->SetScaleFactor(100.0f);
+    GetTransform()->SetScaleFactor(10.0f);
 }
 
 void Stage::Finalize()
@@ -34,7 +41,7 @@ void Stage::End()
 {
 }
 
-void Stage::Render(const float& elapsedTime, const float& scale)
+void Stage::Render(const float& scale)
 {
     model->Render(scale);
 }

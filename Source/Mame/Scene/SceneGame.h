@@ -4,7 +4,10 @@
 
 #include "../Graphics/SkyBox.h"
 #include "../Graphics/ShadowMap.h"
+
 #include "../Resource/sprite.h"
+
+#include "../Game/Stage.h"
 
 #define SKY_BOX 1
 
@@ -25,10 +28,28 @@ public:
 
     void DrawDebug()    override;
 
+public:
+    enum class SAMPLER_STATE { POINT, LINEAR, ANISOTROPIC, LINEAR_BORDER_BLACK, LINEAR_BORDER_WHITE };
+    Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerStates[5];
+
+    enum class DEPTH_STATE { ZT_ON_ZW_ON, ZT_ON_ZW_OFF, ZT_OFF_ZW_ON, ZT_OFF_ZW_OFF };
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilStates[4];
+
+    enum class BLEND_STATE { NONE, ALPHA, ADD, MULTIPLY };
+    Microsoft::WRL::ComPtr<ID3D11BlendState> blendStates[4];
+
+    enum class RASTER_STATE { SOLID, WIREFRAME, CULL_NONE, WIREFRAME_CULL_NONE };
+    Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerStates[4];
+
+    void SetStates();
+
 private:
     bool isDebugCamera = false;
 
-private:
+private:// Modelån
+    std::unique_ptr<Stage> stage;
+
+private:// Graphicsån
 #if SKY_BOX
     std::shared_ptr<Sprite> skyBoxSprite;
     std::unique_ptr<SkyBox> skyBox;

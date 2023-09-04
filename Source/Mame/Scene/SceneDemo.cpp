@@ -103,7 +103,8 @@ void SceneDemo::CreateResource()
 
     // stage
     {
-        stage = std::make_unique<Stage>();
+        stage = std::make_unique<Stage>("./Resources/Model/stage.fbx");
+        //stage = std::make_unique<Stage>();
     }
 
     // skybox
@@ -431,7 +432,7 @@ void SceneDemo::Render(const float& elapsedTime)
 
     // stage
     {
-        stage->Render(elapsedTime, 1.0f);
+        stage->Render(1.0f);
     }
 
     // 3Dエフェクト描画
