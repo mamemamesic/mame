@@ -7,6 +7,9 @@
 #include "SceneLoading.h"
 #include "SceneTitle.h"
 
+#include "../Graphics/Camera.h"
+#include "../Game/PlayerManager.h"
+
 void SceneGame::CreateResource()
 {
 }
@@ -16,6 +19,9 @@ void SceneGame::Initialize()
 {
     // カメラ
     Camera::Instance().Initialize();
+
+    // プレイヤー初期化
+    //PlayerManager::Instance().Initialize();
 }
 
 // 終了化
@@ -59,7 +65,7 @@ void SceneGame::Render(const float& elapsedTime)
     rc.lightDirection = { 0.0f, -1.0f, 0.0f, 0.0f };
 
     Shader* shader = graphics.GetShader();
-    //shader->Begin(graphics.GetDeviceContext(), rc, 0);
+    shader->Begin(graphics.GetDeviceContext(), rc);
 }
 
 // debug用

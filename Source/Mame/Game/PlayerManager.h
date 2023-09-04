@@ -25,7 +25,7 @@ public:
 
 public: // æ“¾Eİ’è ŠÖ˜A
     std::unique_ptr<Player>& GetPlayer() { return player; }
-    
+
 private:
     std::unique_ptr<Player> player = nullptr;
 };
