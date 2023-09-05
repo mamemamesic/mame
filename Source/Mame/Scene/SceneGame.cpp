@@ -1,14 +1,16 @@
 #include "SceneGame.h"
 
 #include "../Graphics/Graphics.h"
-#include "../Input/Input.h"
-
 #include "../Graphics/EffectManager.h"
+#include "../Graphics/Camera.h"
+
+#include "../Input/Input.h"
 
 #include "../Other/misc.h"
 
-#include "../Graphics/Camera.h"
 #include "../Game/PlayerManager.h"
+#include "../Game/EnemyManager.h"
+#include "../Game/EnemySlime.h"
 
 #include "SceneManager.h"
 #include "SceneLoading.h"
@@ -51,11 +53,15 @@ void SceneGame::CreateResource()
 void SceneGame::Initialize()
 {
     PlayerManager& playerManager = PlayerManager::Instance();
+    EnemyManager&  enemyManager  = EnemyManager::Instance();
 
     // 生成
     {
         // プレイヤー生成
         playerManager.GetPlayer() = std::make_unique<Player>();
+
+        // 敵生成
+        enemyManager.Register(new EnemySlime());
     }
 
     // 初期化
@@ -65,6 +71,9 @@ void SceneGame::Initialize()
 
         // プレイヤー初期化
         playerManager.Initialize();
+
+        // 敵初期化
+        enemyManager.Initialize();
     }
 
 }
@@ -72,18 +81,32 @@ void SceneGame::Initialize()
 // 終了化
 void SceneGame::Finalize()
 {
-    PlayerManager::Instance().Finalize();
+    PlayerManager& playerManager = PlayerManager::Instance();
+    EnemyManager&  enemyManager  = EnemyManager::Instance();
+
+    playerManager.Finalize();
+
+    enemyManager.Finalize();
 }
 
 // Updateの前に呼び出される
 void SceneGame::Begin()
 {
-    PlayerManager::Instance().Begin();
+    PlayerManager& playerManager = PlayerManager::Instance();
+    EnemyManager&  enemyManager  = EnemyManager::Instance();
+
+    playerManager.Begin();
+
+    enemyManager.Begin();
+
 }
 
 // 更新処理
 void SceneGame::Update(const float& elapsedTime)
 {
+    PlayerManager& playerManager = PlayerManager::Instance();
+    EnemyManager&  enemyManager  = EnemyManager::Instance();
+
     const GamePad& gamePad = Input::Instance().GetGamePad();
 
     // タイトル遷移
@@ -124,7 +147,9 @@ void SceneGame::Update(const float& elapsedTime)
         Camera::Instance().Update(); // カメラ更新
 #endif // _DEBUG
 
-        PlayerManager::Instance().Update(elapsedTime); // プレイヤー更新
+        playerManager.Update(elapsedTime); // プレイヤー更新
+
+        enemyManager.Update(elapsedTime);
 
         EffectManager::Instance().Update(elapsedTime); // エフェクト更新処理
     }
@@ -134,13 +159,19 @@ void SceneGame::Update(const float& elapsedTime)
 // Updateの後に呼び出される
 void SceneGame::End()
 {
-    PlayerManager::Instance().End();
+    PlayerManager& playerManager = PlayerManager::Instance();
+    EnemyManager&  enemyManager  = EnemyManager::Instance();
+
+    playerManager.End();
+    enemyManager.End();
 }
 
 // 描画処理
 void SceneGame::Render(const float& elapsedTime)
 {
     Graphics& graphics = Graphics::Instance();
+    PlayerManager& playerManager = PlayerManager::Instance();
+    EnemyManager&  enemyManager  = EnemyManager::Instance();
 
     // 描画の初期設定
     {
@@ -222,7 +253,10 @@ void SceneGame::Render(const float& elapsedTime)
     // 描画したいものは個々に書く
     {
         constexpr float playerScaleFactor = 0.01f;
-        PlayerManager::Instance().Render(elapsedTime, playerScaleFactor);
+        playerManager.Render(elapsedTime, playerScaleFactor);
+
+        constexpr float enemyScaleFactor = 0.001f;
+        enemyManager.Render(elapsedTime, enemyScaleFactor);
     }
 
     // 3Dエフェクト描画
@@ -235,13 +269,31 @@ void SceneGame::Render(const float& elapsedTime)
         EffectManager::Instance().Render(view, projection);
     }
 
+    // 3Dデバッグ描画
+    {
+        Camera& camera = Camera::Instance();
+        DirectX::XMFLOAT4X4 view, projection;
+        DirectX::XMStoreFloat4x4(&view, camera.GetViewMatrix());
+        DirectX::XMStoreFloat4x4(&projection, camera.GetProjectionMatrix());
+
+        // デバッグレンダラ描画実行
+        graphics.GetDebugRenderer()->Render(graphics.GetDeviceContext(), view, projection);
+    }
+
 }
 
 // debug用
 void SceneGame::DrawDebug()
 {
+    Camera& camera = Camera::Instance();
+    PlayerManager& playerManager = PlayerManager::Instance();
+    EnemyManager&  enemyManager  = EnemyManager::Instance();
     // カメラ
-    Camera::Instance().DrawDebug();
+    camera.DrawDebug();
 
-    PlayerManager::Instance().DrawDebug();
+    // プレイヤー
+    playerManager.DrawDebug();
+
+    // 敵
+    enemyManager.DrawDebug();
 }

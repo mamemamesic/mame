@@ -23,9 +23,9 @@ private: // enum関連
     // 近接攻撃用の球体構造体
     struct CloseRangeAttackSphere
     {
-        std::unique_ptr<Model> model_ = {};  // モデル情報
-        float radius_    = 0.0f;             // 半径
-        float lifeTimer_ = 0.0f;             // 生存タイマー
+        DirectX::XMFLOAT3 position_ = {};
+        float radius_    = 0.0f;
+        float lifeTimer_ = 0.0f;
     };
 
 public:
@@ -43,22 +43,18 @@ public:
 
     void DrawDebug() override;  // ImGui用
 
-    bool InputCloseRangeAttack();   // 近接攻撃入力
-    void CloseRangeAttack();        // 近接攻撃
+private:
+    bool InputCloseRangeAttack();                           // 近接攻撃入力
+    void CreateCloseRangeAttackSphere();                    // 近接攻撃用の球体生成
+    void UpdateCloseRangeAttack(const float elapsedTime);   // 近接攻撃更新
 
-    // 近接攻撃用の球体生成
-    void CreateCloseRangeAttackSphere(
-        const DirectX::XMFLOAT3& pos,
-        const float radius,
-        const float lifeTime
-    );
-
-    void UpdateCloseRangeAttack(const float elapsedTime);
+    void CollisionCRASphereVsEnemies();                     // 球体と敵との衝突処理
 
 private:
     CloseRangeAttackSphere craSphere_ = {}; // 近接攻撃用の球体
+    float sphereRadius_     = 0.5f;
+    float sphereLifeTime_   = 0.5f;
 
-    float offsetY = 0.5f;
-
+    float offsetY_          = 0.5f;
 };
 

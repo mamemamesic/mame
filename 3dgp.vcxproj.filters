@@ -100,6 +100,12 @@
     <FxCompile Include="Source\Shader\SkyBoxPS.hlsl">
       <Filter>mamelib\Shader</Filter>
     </FxCompile>
+    <FxCompile Include="Source\Shader\DebugPS.hlsl">
+      <Filter>mamelib\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Shader\DebugVS.hlsl">
+      <Filter>mamelib\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Mame\Scene\BaseScene.cpp">
@@ -282,6 +288,12 @@
     </ClCompile>
     <ClCompile Include="Source\Mame\Game\AbilityManager.cpp">
       <Filter>mamelib\Mame\Game\Ability</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Mame\Game\EnemyManager.cpp">
+      <Filter>mamelib\Mame\Game\Character\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Mame\Graphics\DebugRenderer.cpp">
+      <Filter>mamelib\Mame\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -482,6 +494,12 @@
     <ClInclude Include="Source\Mame\Game\AbilityManager.h">
       <Filter>mamelib\Mame\Game\Ability</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Mame\Game\EnemyManager.h">
+      <Filter>mamelib\Mame\Game\Character\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Mame\Graphics\DebugRenderer.h">
+      <Filter>mamelib\Mame\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Shader\fullscreen_quad.hlsli">
@@ -527,6 +545,9 @@
       <Filter>mamelib\Shader</Filter>
     </None>
     <None Include="Source\Shader\SkyBox.hlsli">
+      <Filter>mamelib\Shader</Filter>
+    </None>
+    <None Include="Source\Shader\Debug.hlsli">
       <Filter>mamelib\Shader</Filter>
     </None>
   </ItemGroup>

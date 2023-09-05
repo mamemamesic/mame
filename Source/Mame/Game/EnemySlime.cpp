@@ -24,6 +24,8 @@ EnemySlime::~EnemySlime()
 // ‰Šú‰»
 void EnemySlime::Initialize()
 {
+    debugSqhereOffset.y += offsetY_;
+
     Enemy::Initialize();
 
     Character::PlayAnimation(0, true);

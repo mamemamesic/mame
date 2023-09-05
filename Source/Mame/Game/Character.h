@@ -51,9 +51,11 @@ public:
 
 private:
     Transform collisionSqhereTransform{};
+    float range = 1.0f;                     // ‹…“–‚½‚è”»’è”¼Œa
+
+public:
     DirectX::XMFLOAT3 debugSqhereOffset{};  // “–‚½‚è”»’è—p
-    //float range = 1.0f;                     // ‹…“–‚½‚è”»’è”¼Œa
-    float range = 0.5f;                     // ‹…“–‚½‚è”»’è”¼Œa
+    float radius_ = 0.5f;                   // ‹…“–‚½‚è”»’è”¼Œa
 
 
 public: // --- ImGui—p --- //

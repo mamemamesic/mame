@@ -224,7 +224,7 @@ void SceneDemo::Update(const float& elapsedTime)
     // Debug—pƒJƒƒ‰
     if (gamePad.GetButtonDown() & GamePad::BTN_X)isDebugCamera = isDebugCamera ? false : true;
     if (isDebugCamera)
-    {        
+    {
         int posX = 1980 / 2;
         int posY = 1080 / 2;
 
@@ -239,7 +239,7 @@ void SceneDemo::Update(const float& elapsedTime)
         DirectX::XMFLOAT2 moveVectorFloat2;
         DirectX::XMStoreFloat2(&moveVectorFloat2, moveVector);
 
-        Camera::Instance().UpdateDebug(elapsedTime, moveVectorFloat2);        
+        Camera::Instance().UpdateDebug(elapsedTime, moveVectorFloat2);
 
         SetCursorPos(posX, posY);
     }
@@ -250,10 +250,10 @@ void SceneDemo::Update(const float& elapsedTime)
     }
 
     // slime
-    {        
+    {
         enemySlime[0]->Update(elapsedTime);
         enemySlime[1]->Update(elapsedTime);
-        
+
         //DirectX::XMFLOAT3 enemySlime0offset = enemySlime[0]->GetDebugSqhereOffset();
         //DirectX::XMFLOAT3 enemySlime1offset = enemySlime[1]->GetDebugSqhereOffset();
         //DirectX::XMFLOAT3 enemySlime0position = enemySlime[0]->GetTransform()->GetPosition();
@@ -269,7 +269,7 @@ void SceneDemo::Update(const float& elapsedTime)
             enemySlime[1]->GetTransform()->GetPosition(),
             //enemySlime1position,
             enemySlime[1]->GetRange(),
-            outPosition
+            &outPosition
         ))
         {
             enemySlime[1]->GetTransform()->SetPosition(outPosition);
@@ -278,7 +278,7 @@ void SceneDemo::Update(const float& elapsedTime)
 
     // player
     PlayerManager::Instance().Update(elapsedTime);
-    
+
     // item
     ItemManager::Instance().Update(elapsedTime);
 

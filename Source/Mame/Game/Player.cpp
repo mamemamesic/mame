@@ -1,10 +1,14 @@
 #include "Player.h"
 
+#include <memory>
+
 #include "../Graphics/Graphics.h"
+#include "../Graphics/DebugRenderer.h"
 #include "../Input/Input.h"
 
 #include "AbilityManager.h"
-#include <memory>
+#include "EnemyManager.h"
+#include "Collision.h"
 
 // コンストラクタ
 Player::Player()
@@ -17,10 +21,6 @@ Player::Player()
             "./Resources/Model/sotai.fbx");
             //"./Resources/Model/sanaModel/mameoall.fbx");
             //"./Resources/Model/testModel/nico.fbx");
-
-        const char* const fbxName = "./Resources/Model/Collision/sqhere.fbx";
-        craSphere_.model_ = std::make_unique<Model>(graphics.GetDevice(), "./Resources/Model/Collision/sqhere.fbx");
-
     }
 }
 
@@ -32,6 +32,8 @@ Player::~Player()
 // 初期化
 void Player::Initialize()
 {
+    debugSqhereOffset.y += offsetY_;
+
     Character::Initialize();
 
     // 待機アニメーションに設定してる
@@ -100,11 +102,10 @@ void Player::Update(const float& elapsedTime)
     }
 
     // 近接攻撃入力処理
-    if (InputCloseRangeAttack() == true) CloseRangeAttack();
+    if (InputCloseRangeAttack() == true) CreateCloseRangeAttackSphere();
 
     // 近接攻撃更新処理
     UpdateCloseRangeAttack(elapsedTime);
-
 }
 
 // Updateの後に呼ばれる
@@ -115,14 +116,20 @@ void Player::End()
 // 描画処理
 void Player::Render(const float& elapsedTime, const float& scale)
 {
+    using DirectX::XMFLOAT4;
+
     Character::Render(elapsedTime, scale);
 
     // 近接攻撃用の球体描画
 #ifdef _DEBUG
     if (craSphere_.lifeTimer_ > 0.0f)
     {
-        const float range = craSphere_.radius_ * 2.0f;
-        craSphere_.model_->Render(range, 1);
+        //craSphere_.model_->Render(1.0f, 1);
+        DebugRenderer* debugRenderer = Graphics::Instance().GetDebugRenderer();
+        const XMFLOAT4 color = { 1,1,1,1 };
+        debugRenderer->DrawSphere(
+            craSphere_.position_, craSphere_.radius_, color
+        );
     }
 #endif // _DEBUG
 }
@@ -135,6 +142,10 @@ void Player::DrawDebug()
     {
         Character::DrawDebug();
 
+        float range = GetRange();
+        ImGui::DragFloat("range", &range);
+        SetRange(range);
+
         ImGui::EndMenu();
     }
 #endif // USE_IMGUI
@@ -143,6 +154,8 @@ void Player::DrawDebug()
 
 bool Player::InputCloseRangeAttack()
 {
+    if (craSphere_.lifeTimer_ > 0.0f) return false;
+
     const GamePad& gamePad = Input::Instance().GetGamePad();
 
     if (gamePad.GetButtonDown() & GamePad::BTN_A)
@@ -153,7 +166,7 @@ bool Player::InputCloseRangeAttack()
     return false;
 }
 
-void Player::CloseRangeAttack()
+void Player::CreateCloseRangeAttackSphere()
 {
     using DirectX::XMFLOAT3;
 
@@ -161,30 +174,21 @@ void Player::CloseRangeAttack()
     const XMFLOAT3   plPosition = transform->GetPosition();
     const XMFLOAT3   forward    = transform->CalcForward();
 
-    const float radius = 0.25f;             // 半径
-    const float length = (0.1f + radius);   // 半径の大きさによって距離が調整されるようにする
+    //const float length = (0.1f + radius);   // 半径の大きさによって距離が調整されるようにする
+    const float length = 0.5f;
 
     // プレイヤーの前らへんに位置を設定
     const XMFLOAT3 spherePosition = {
         plPosition.x + (forward.x * length),
-        plPosition.y + (forward.y * length) + offsetY,
+        plPosition.y + (forward.y * length) + offsetY_,
         plPosition.z + (forward.z * length),
     };
 
-    const float lifeTime = 0.5f;    // 生存時間
-
-    // 近接攻撃用の球体生成
-    CreateCloseRangeAttackSphere(spherePosition, radius, lifeTime);
-}
-
-void Player::CreateCloseRangeAttackSphere(
-    const DirectX::XMFLOAT3& pos,
-    const float radius,
-    const float lifeTime)
-{
-    craSphere_.model_->GetTransform()->SetPosition(pos);
-    craSphere_.radius_    = radius;
-    craSphere_.lifeTimer_ = lifeTime;
+    // パラメータ代入
+    craSphere_.position_ = spherePosition;
+    //craSphere_.model_->GetTransform()->SetScaleFactor(XMFLOAT3(diameter, diameter, diameter));
+    craSphere_.radius_ = sphereRadius_;
+    craSphere_.lifeTimer_ = sphereLifeTime_;
 }
 
 void Player::UpdateCloseRangeAttack(const float elapsedTime)
@@ -193,6 +197,35 @@ void Player::UpdateCloseRangeAttack(const float elapsedTime)
 
     craSphere_.lifeTimer_ -= elapsedTime;
 
-    // 球体と敵との衝突処理
-    //CollisionCRASphereVsEnemies();
+    // 近接攻撃と敵との衝突処理
+    CollisionCRASphereVsEnemies();
+}
+
+void Player::CollisionCRASphereVsEnemies()
+{
+    if (craSphere_.lifeTimer_ <= 0.0f) return;
+
+    using DirectX::XMFLOAT3;
+
+    EnemyManager& enemyManager = EnemyManager::Instance();
+    const int enemyCount = enemyManager.GetEnemyCount();
+    for (int i = 0; i < enemyCount; ++i)
+    {
+        Enemy* enemy = enemyManager.GetEnemy(i);
+        const XMFLOAT3 enemyPosition  = enemy->GetTransform()->GetPosition();
+        const float    enemyRadius    = enemy->radius_;
+
+        XMFLOAT3 outPosition = {};
+        const bool isIntersect = {
+            Collision::IntersectSphereVsSphere(
+            craSphere_.position_, craSphere_.radius_,
+            enemyPosition, enemyRadius,
+            &outPosition
+            )
+        };
+
+        // 衝突した敵を消す
+        if (isIntersect == true) enemyManager.Remove(enemy);
+
+    }
 }
