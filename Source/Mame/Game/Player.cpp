@@ -149,30 +149,43 @@ void Player::Update(const float& elapsedTime)
 
     // 弾丸アイコン更新処理
     {
+        // 位置設定
+        int pileUpCounter = 0; // 重ねた数をカウントする
+        int columnCounter = 0; // 列の数をカウントする
         const int projectileiconCount = projectileIconManager_.GetProjectileIconCount();
         for (int i = 0; i < projectileiconCount; ++i)
         {
-            //ProjectileIcon* projectileIcon = projectileIconManager_.GetProjectileIcon(i);
-            Transform* projIconTransform = projectileIconManager_.GetProjectileIcon(i)->GetTransform();
+            ProjectileIcon* projectileIcon          = projectileIconManager_.GetProjectileIcon(i);
+            Transform*      projectileIconTransform = projectileIcon->GetTransform();
 
             const XMFLOAT3 plPosition = GetTransform()->GetPosition();
-            const float plTop = (plPosition.y + 0.25f);
+            const float    plTop      = (plPosition.y + 0.4f);
 
-            // Y
-            const float addPositionY = 0.25f;
-            if (i % 5 == 0) // 現在の弾丸アイコンの数が５の倍数
+            constexpr float addPositionY = 0.2f;
+            constexpr float addPositionX = (-0.1f);
+
+            // 一定数積んだら列を分けて１から積み上げ直す
+            if (pileUpCounter >= projectileIconManager_.PILE_UP_COUNT_MAX_)
             {
-                projIconTransform->SetPositionY(plTop + addPositionY);
-            }
-            else
-            {
-                projIconTransform->SetPositionY(plTop + (i * addPositionY));
+                pileUpCounter = 0; // 積み上げカウントをリセット
+                ++columnCounter;   // 列カウントを増やす
             }
 
-            // X
-            projIconTransform->SetPositionX(plPosition.x);
+            // Y位置設定
+            projectileIconTransform->SetPositionY(plTop + (static_cast<float>(pileUpCounter) * addPositionY));
 
+            const float columnCount = static_cast<float>(projectileIconManager_.columnCounter_);
+            const float shiftLeft = (columnCount * addPositionX);               // すべての列を等しく左にずらす
+            const float shitRight = (static_cast<float>(columnCounter) * 0.1f); // それぞれの列を列数に比例して右にずらす
+
+            // まず列を全体的に左にずらしてから個々の列を列数に比例して右にずらす
+            projectileIconTransform->SetPositionX(
+                (plPosition.x + projectileIcon->offsetX_) + shiftLeft + shitRight
+            );
+
+            ++pileUpCounter; // 積み上げカウント加算
         }
+
         projectileIconManager_.Update(elapsedTime);
     }
 

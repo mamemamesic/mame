@@ -19,7 +19,7 @@ public:
     void DrawDebug();                                           // ImGui—p
 
 public:
-    void Register(ProjectileIcon* projectile);  // “o˜^
+    void Register(ProjectileIcon* projectileIcon);  // “o˜^
     void Remove(ProjectileIcon* projectile);    // íœ
     void Clear();                           // ‘Síœ
 
@@ -28,7 +28,15 @@ public: // æ“¾Eİ’è@ŠÖ˜A
 
     ProjectileIcon* GetProjectileIcon(int index) { return projectileIcons.at(index); } // ’eŠÛæ“¾
 
+public:
+    static constexpr int PILE_UP_COUNT_MAX_ = 5; // Ï‚İã‚°Å‘å”
+
+public:
+    int pileUpCounter_  = 0; // Ï‚İã‚°‚½”‚ğ”‚¦‚é
+    int columnCounter_  = 0; // —ñ‚ğ”‚¦‚é
+
 private:
     std::vector<ProjectileIcon*>  projectileIcons = {};
     std::set<ProjectileIcon*>     removes = {};
+
 };

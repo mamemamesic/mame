@@ -31,6 +31,8 @@ public: // æ“¾Eİ’è@ŠÖ˜A
 public:
     std::unique_ptr<Model> model_ = nullptr;
 
+    float offsetX_ = 0.0f;
+
 private:
     ProjectileIconManager* manager_ = nullptr;
 

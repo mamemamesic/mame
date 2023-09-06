@@ -97,9 +97,20 @@ void ProjectileIconManager::DrawDebug()
 }
 
 // 登録
-void ProjectileIconManager::Register(ProjectileIcon* projectile)
+void ProjectileIconManager::Register(ProjectileIcon* projectileIcon)
 {
-    projectileIcons.emplace_back(projectile);
+    projectileIcon->offsetX_ = (0.1f * columnCounter_); // 生成位置を列に応じて右にずらしていく
+    projectileIcons.emplace_back(projectileIcon);
+
+    // 縦にある程度積んだら分列させて左にずらすようにする
+    ++pileUpCounter_;
+    if (pileUpCounter_ >= PILE_UP_COUNT_MAX_)
+    {
+        ++columnCounter_;   // 列を加算
+
+        pileUpCounter_ = 0; // 積み上げカウントをリセット
+    }
+
 }
 
 // 削除
