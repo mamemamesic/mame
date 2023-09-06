@@ -1,24 +1,24 @@
 #include "ProjectileStraiteIcon.h"
+#include "ProjectileIconManager.h"
 
 #include "../Graphics/Graphics.h"
 
-#include "ItemManager.h"
-
 // コンストラクタ
-ProjectileStraiteIcon::ProjectileStraiteIcon(ProjectileManager* manager)
-    :Projectile(manager)
+ProjectileStraiteIcon::ProjectileStraiteIcon(ProjectileIconManager* manager)
+    :ProjectileIcon(manager)
 {
     Graphics& graphics = Graphics::Instance();
 
-    model = std::make_unique<Model>(graphics.GetDevice(), "./Resources/Model/Projectile/sqhere.fbx");
+    model_ = std::make_unique<Model>(graphics.GetDevice(), "./Resources/Model/Projectile/sqhere.fbx");
 
     // ImGui名前設定
-    SetName("ProjectileStraite" + std::to_string(nameNum++));
+    SetName("ProjectileStraite" + std::to_string(nameNum_++));
 }
 
 // 初期化
 void ProjectileStraiteIcon::Initialize()
 {
+
 }
 
 // 更新処理
@@ -32,14 +32,14 @@ void ProjectileStraiteIcon::Update(const float& elapsedTime)
 // 描画処理
 void ProjectileStraiteIcon::Render(const float& scale)
 {
-    Projectile::Render(scale);
+    ProjectileIcon::Render(scale);
 }
 
 // ImGui用
 void ProjectileStraiteIcon::DrawDebug()
 {
 #ifdef USE_IMGUI
-    Projectile::DrawDebug();
+    ProjectileIcon::DrawDebug();
     if (ImGui::BeginMenu(GetName()))
     {
 

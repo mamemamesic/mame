@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Projectile.h"
+#include "ProjectileIcon.h"
 
-class ProjectileStraiteIcon : public Projectile
+class ProjectileStraiteIcon : public ProjectileIcon
 {
 public:
-    ProjectileStraiteIcon(ProjectileManager* manager);
+    ProjectileStraiteIcon(ProjectileIconManager* manager);
     ~ProjectileStraiteIcon() {}
 
     void Initialize()                       override;   // èâä˙âª

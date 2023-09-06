@@ -24,9 +24,9 @@ public:
     void Clear();                           // ‘Síœ
 
 public: // æ“¾Eİ’è@ŠÖ˜A
-    const int GetProjectileCount() const { return static_cast<int>(projectileIcons.size()); } // ’eŠÛ”æ“¾
+    const int GetProjectileIconCount() const { return static_cast<int>(projectileIcons.size()); } // ’eŠÛ”æ“¾
 
-    ProjectileIcon* GetProjectile(int index) { return projectileIcons.at(index); } // ’eŠÛæ“¾
+    ProjectileIcon* GetProjectileIcon(int index) { return projectileIcons.at(index); } // ’eŠÛæ“¾
 
 private:
     std::vector<ProjectileIcon*>  projectileIcons = {};

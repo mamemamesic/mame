@@ -14,27 +14,27 @@ ProjectileIconManager::~ProjectileIconManager()
 // 初期化
 void ProjectileIconManager::Initialize()
 {
-    for (ProjectileIcon*& projectile : projectileIcons)
+    for (ProjectileIcon*& projectileIcon : projectileIcons)
     {
-        projectile->Initialize();
+        projectileIcon->Initialize();
     }
 }
 
 // 終了化
 void ProjectileIconManager::Finalize()
 {
-    for (ProjectileIcon*& projectile : projectileIcons)
+    for (ProjectileIcon*& projectileIcon : projectileIcons)
     {
-        projectile->Finalize();
+        projectileIcon->Finalize();
     }
 }
 
 // Updateの前に呼ばれる
 void ProjectileIconManager::Begin()
 {
-    for (ProjectileIcon*& projectile : projectileIcons)
+    for (ProjectileIcon*& projectileIcon : projectileIcons)
     {
-        projectile->Begin();
+        projectileIcon->Begin();
     }
 }
 
@@ -49,10 +49,10 @@ void ProjectileIconManager::Update(const float& elapsedTime)
 
     // 破棄処理
     {
-        for (ProjectileIcon* projectile : removes)
+        for (ProjectileIcon* projectileIcon : removes)
         {
             // vectorから要素を削除する場合はイテレーターで削除
-            std::vector<ProjectileIcon*>::iterator it = std::find(projectileIcons.begin(), projectileIcons.end(), projectile);
+            std::vector<ProjectileIcon*>::iterator it = std::find(projectileIcons.begin(), projectileIcons.end(), projectileIcon);
 
             // std::vectorで管理されている要素を削除するにはerase()関数を使用する
             // (破棄リストのポインタからイテレーターを検索し、erase関数に渡す)
@@ -62,7 +62,7 @@ void ProjectileIconManager::Update(const float& elapsedTime)
             }
 
             // アイテムの破棄
-            delete projectile;
+            delete projectileIcon;
         }
         // 破棄リストをクリア
         removes.clear();
@@ -72,27 +72,27 @@ void ProjectileIconManager::Update(const float& elapsedTime)
 // Updateの後に呼ばれる
 void ProjectileIconManager::End()
 {
-    for (ProjectileIcon*& projectile : projectileIcons)
+    for (ProjectileIcon*& projectileIcon : projectileIcons)
     {
-        projectile->End();
+        projectileIcon->End();
     }
 }
 
 // 描画処理
 void ProjectileIconManager::Render(const float& scale)
 {
-    for (ProjectileIcon*& projectile : projectileIcons)
+    for (ProjectileIcon*& projectileIcon : projectileIcons)
     {
-        projectile->Render(scale);
+        projectileIcon->Render(scale);
     }
 }
 
 // ImGui用
 void ProjectileIconManager::DrawDebug()
 {
-    for (ProjectileIcon*& projectile : projectileIcons)
+    for (ProjectileIcon*& projectileIcon : projectileIcons)
     {
-        projectile->DrawDebug();
+        projectileIcon->DrawDebug();
     }
 }
 
@@ -112,9 +112,13 @@ void ProjectileIconManager::Remove(ProjectileIcon* projectile)
 // 全削除
 void ProjectileIconManager::Clear()
 {
-    for (ProjectileIcon*& projectile : projectileIcons)
+    for (ProjectileIcon*& projectileIcon : projectileIcons)
     {
-        delete projectile;
+        if (projectileIcon)
+        {
+            delete projectileIcon;
+            projectileIcon = nullptr;
+        }
     }
     projectileIcons.clear();
     projectileIcons.shrink_to_fit();  // vectorの余分なメモリを開放する関数(C++11)

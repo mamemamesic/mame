@@ -64,7 +64,6 @@ private:
     float launchTimer_       = 0.0f;
     float launchTime_        = 1.0f;
 
-    ProjectileManager projectileIconManager_ = {};
-    int   weaponCount_ = 0;
+    ProjectileIconManager projectileIconManager_ = {};
 };
 

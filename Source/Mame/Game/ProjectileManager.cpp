@@ -114,7 +114,11 @@ void ProjectileManager::Clear()
 {
     for (Projectile*& projectile : projectiles)
     {
-        delete projectile;
+        if (projectile)
+        {
+            delete projectile;
+            projectile = nullptr;
+        }
     }
     projectiles.clear();
     projectiles.shrink_to_fit();  // vector‚Ì—]•ª‚Èƒƒ‚ƒŠ‚ğŠJ•ú‚·‚éŠÖ”(C++11)

@@ -10,6 +10,7 @@
 #include "EnemyManager.h"
 #include "Collision.h"
 #include "ProjectileStraite.h"
+#include "ProjectileStraiteIcon.h"
 
 // コンストラクタ
 Player::Player()
@@ -24,6 +25,7 @@ Player::Player()
             //"./Resources/Model/sanaModel/mameoall.fbx");
             //"./Resources/Model/testModel/nico.fbx");
     }
+
 }
 
 // デストラクタ
@@ -41,11 +43,18 @@ void Player::Initialize()
 
     // 待機アニメーションに設定してる
     Character::PlayAnimation(0, true);
+
+    projectileManager_.Initialize();
+    projectileIconManager_.Initialize();
+
+    new ProjectileStraiteIcon(&projectileIconManager_);
 }
 
 // 終了化
 void Player::Finalize()
 {
+    projectileManager_.Finalize();
+    projectileIconManager_.Finalize();
 }
 
 // Updateの前に呼ばれる
@@ -137,6 +146,42 @@ void Player::Update(const float& elapsedTime)
     // 弾丸更新処理
     projectileManager_.Update(elapsedTime);
 
+
+    // 弾丸アイコン更新処理
+    {
+        const int projectileiconCount = projectileIconManager_.GetProjectileIconCount();
+        for (int i = 0; i < projectileiconCount; ++i)
+        {
+            //ProjectileIcon* projectileIcon = projectileIconManager_.GetProjectileIcon(i);
+            Transform* projIconTransform = projectileIconManager_.GetProjectileIcon(i)->GetTransform();
+
+            const XMFLOAT3 plPosition = GetTransform()->GetPosition();
+            const float plTop = (plPosition.y + 0.25f);
+
+            // Y
+            const float addPositionY = 0.25f;
+            if (i % 5 == 0) // 現在の弾丸アイコンの数が５の倍数
+            {
+                projIconTransform->SetPositionY(plTop + addPositionY);
+            }
+            else
+            {
+                projIconTransform->SetPositionY(plTop + (i * addPositionY));
+            }
+
+            // X
+            projIconTransform->SetPositionX(plPosition.x);
+
+        }
+        projectileIconManager_.Update(elapsedTime);
+    }
+
+    // 仮
+    if (gamePad.GetButtonDown() & GamePad::BTN_A)
+    {
+        new ProjectileStraiteIcon(&projectileIconManager_);
+    }
+
 }
 
 // Updateの後に呼ばれる
@@ -152,6 +197,8 @@ void Player::Render(const float& elapsedTime, const float& scale)
     Character::Render(elapsedTime, scale);
 
     projectileManager_.Render(0.1f);
+
+    projectileIconManager_.Render(0.1f);
 
     // 近接攻撃用の球体描画
 #ifdef _DEBUG
