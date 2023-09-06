@@ -41,7 +41,7 @@ public:
     void DrawDebug()    override;
 
     static bool isDebugRender;
-    
+
 public:
     enum class SAMPLER_STATE { POINT, LINEAR, ANISOTROPIC, LINEAR_BORDER_BLACK, LINEAR_BORDER_WHITE };
     Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerStates[5];
@@ -85,7 +85,7 @@ private:
     std::unique_ptr<Effect> effect[4];
 
     // slime
-    std::unique_ptr<EnemySlime> enemySlime[2];
+    //std::unique_ptr<EnemySlime> enemySlime[2];
 
     // stage
     std::unique_ptr<Stage> stage;

@@ -23,7 +23,7 @@ framework::framework(HWND hwnd)
 bool framework::initialize()
 {
     HRESULT hr{ S_OK };
-    
+
     //framebuffers[0] = std::make_unique<FrameBuffer>(graphics.GetDevice(), 1280, 720);
     //bit_block_transfer = std::make_unique<FullscreenQuad>(graphics.GetDevice());
     //framebuffers[1] = std::make_unique<FrameBuffer>(graphics.GetDevice(), 1280 / 2, 720 / 2);
@@ -40,15 +40,15 @@ bool framework::initialize()
 
     hr = audioManager.xAudio2->CreateMasteringVoice(&audioManager.masterVoice);
     _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
-    
+
     // 音楽読み込み
     //audioManager.LoadAudio();
     //audioManager.StopAllAudio(); // 全音楽停止
 
     Mame::Scene::SceneManager::Instance().Initialize();
     // シーンタイトル
-    Mame::Scene::SceneManager::Instance().ChangeScene(new SceneGame);
-    //Mame::Scene::SceneManager::Instance().ChangeScene(new SceneDemo);
+    //Mame::Scene::SceneManager::Instance().ChangeScene(new SceneGame);
+    Mame::Scene::SceneManager::Instance().ChangeScene(new SceneDemo);
 
 #ifndef _DEBUG
     ShowCursor(!FULLSCREEN);	// フルスクリーン時はカーソルを消す
@@ -85,14 +85,14 @@ void framework::update(float elapsed_time/*Elapsed seconds from last frame*/)
 void framework::render(float elapsed_time/*Elapsed seconds from last frame*/)
 {
     Graphics& graphics = Graphics::Instance();
- 
+
     //framebuffers[0]->Clear(graphics.GetDeviceContext());
     //framebuffers[0]->Activate(graphics.GetDeviceContext());
     //framebuffers[0]->Deactivate(graphics.GetDeviceContext());
 
     // todo scenemanager
     Mame::Scene::SceneManager::Instance().Render(elapsed_time);
-    
+
 
  //   // BLOOM
  //   bloomer->Make(graphics.GetDeviceContext(), framebuffers[0]->shaderResourceViews[0].Get());
@@ -111,11 +111,11 @@ void framework::render(float elapsed_time/*Elapsed seconds from last frame*/)
     IMGUI_CTRL_DISPLAY();
 
     UINT sync_interval{ 0 };
-    graphics.GetSwapChain()->Present(sync_interval, 0); 
+    graphics.GetSwapChain()->Present(sync_interval, 0);
 }
 
 bool framework::uninitialize()
-{    
+{
     // シーン終了化
     Mame::Scene::SceneManager::Instance().Clear();
 

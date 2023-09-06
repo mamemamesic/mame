@@ -6,7 +6,8 @@ Stage::Stage()
 {
     Graphics& graphics = Graphics::Instance();
 
-    model = std::make_unique<Model>(graphics.GetDevice(), "./Resources/Model/Stage/plane.fbx");
+    //model = std::make_unique<Model>(graphics.GetDevice(), "./Resources/Model/Stage/plane.fbx");
+    model = std::make_unique<Model>(graphics.GetDevice(), "./Resources/Model/stage.fbx");
 }
 
 Stage::~Stage()
@@ -15,7 +16,9 @@ Stage::~Stage()
 
 void Stage::Initialize()
 {
-    GetTransform()->SetScaleFactor(100.0f);
+    GetTransform()->SetScale(DirectX::XMFLOAT3(6.0f, 1.0f, 200.0f));
+    //GetTransform()->SetScaleFactor(100.0f);
+    GetTransform()->SetScaleFactor(1.0f);
 }
 
 void Stage::Finalize()

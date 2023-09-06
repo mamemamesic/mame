@@ -25,6 +25,7 @@ EnemySlime::~EnemySlime()
 void EnemySlime::Initialize()
 {
     debugSqhereOffset.y += offsetY_;
+    GetTransform()->SetPosition(DirectX::XMFLOAT3(0, 0, 20));
 
     Enemy::Initialize();
 

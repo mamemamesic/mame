@@ -1,7 +1,10 @@
 #pragma once
 
-#include "Character.h"
 #include <memory>
+
+#include "Character.h"
+#include "ProjectileManager.h"
+#include "ProjectileIconManager.h"
 
 class Player : public Character
 {
@@ -56,5 +59,12 @@ private:
     float sphereLifeTime_   = 0.5f;
 
     float offsetY_          = 0.5f;
+
+    ProjectileManager projectileManager_ = {};
+    float launchTimer_       = 0.0f;
+    float launchTime_        = 1.0f;
+
+    ProjectileManager projectileIconManager_ = {};
+    int   weaponCount_ = 0;
 };
 

@@ -6,9 +6,10 @@
 
 void Camera::Initialize()
 {
-    transform.SetPosition(DirectX::XMFLOAT3(0.0f, 1.0f, 10.0f));
+    transform.SetPosition(DirectX::XMFLOAT3(0.0f, 2.0f, -4.5f));
     transform.SetScale(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f));
-    transform.SetRotation(DirectX::XMFLOAT4(0.0f, DirectX::XMConvertToRadians(180), 0.0f, 0.0f));
+    //transform.SetRotation(DirectX::XMFLOAT4(0.0f, DirectX::XMConvertToRadians(180), 0.0f, 0.0f));
+    transform.SetRotation(DirectX::XMFLOAT4(DirectX::XMConvertToRadians(15.0f), 0.0f, 0.0f, 0.0f));
 }
 
 void Camera::Update()
@@ -33,6 +34,7 @@ void Camera::Update()
 
     // カメラ位置をプレイヤーの後ろにしたい
     {
+#if 0
         float length = 5.0f;
 
         // プレイヤーの上に高さを合わせる
@@ -47,6 +49,7 @@ void Camera::Update()
         };
 
         GetTransform()->SetPosition(playerBack);
+#endif
     }
 
     // カメラの角度調整

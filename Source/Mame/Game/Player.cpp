@@ -9,6 +9,7 @@
 #include "AbilityManager.h"
 #include "EnemyManager.h"
 #include "Collision.h"
+#include "ProjectileStraite.h"
 
 // コンストラクタ
 Player::Player()
@@ -18,7 +19,8 @@ Player::Player()
     // モデル生成
     {
         model = std::make_unique<Model>(graphics.GetDevice(),
-            "./Resources/Model/sotai.fbx");
+            "./Resources/Model/sikaku.fbx");
+            //"./Resources/Model/sotai.fbx");
             //"./Resources/Model/sanaModel/mameoall.fbx");
             //"./Resources/Model/testModel/nico.fbx");
     }
@@ -32,6 +34,7 @@ Player::~Player()
 // 初期化
 void Player::Initialize()
 {
+    GetTransform()->SetPosition(DirectX::XMFLOAT3(0, 0.25f, 0));
     debugSqhereOffset.y += offsetY_;
 
     Character::Initialize();
@@ -67,12 +70,16 @@ void Player::Update(const float& elapsedTime)
     const GamePad& gamePad = Input::Instance().GetGamePad();
     {
         const float aLx = gamePad.GetAxisLX();
-        const float aLy = gamePad.GetAxisLY();
+        //const float aLy = gamePad.GetAxisLY();
 
         XMFLOAT3 pos = transform->GetPosition();
         constexpr float addPos = 3.0f;
         if (aLx != 0.0f) pos.x += ((aLx * addPos) * elapsedTime);
-        if (aLy != 0.0f) pos.z += ((aLy * addPos) * elapsedTime);
+        //if (aLy != 0.0f) pos.z += ((aLy * addPos) * elapsedTime);
+
+        constexpr float posLimitX = 1.875f;
+        if      (pos.x < -posLimitX) pos.x = -posLimitX;
+        else if (pos.x >  posLimitX) pos.x =  posLimitX;
 
         // 位置更新
         transform->SetPosition(pos);
@@ -101,11 +108,35 @@ void Player::Update(const float& elapsedTime)
         transform->SetRotation(rotation);
     }
 
-    // 近接攻撃入力処理
-    if (InputCloseRangeAttack() == true) CreateCloseRangeAttackSphere();
+    //// 近接攻撃入力処理
+    //if (InputCloseRangeAttack() == true) CreateCloseRangeAttackSphere();
 
-    // 近接攻撃更新処理
-    UpdateCloseRangeAttack(elapsedTime);
+    //// 近接攻撃更新処理
+    //UpdateCloseRangeAttack(elapsedTime);
+
+    launchTimer_ -= elapsedTime;
+    if (launchTimer_ <= 0.0f)
+    {
+        const DirectX::XMFLOAT3 position = GetTransform()->GetPosition();
+        const DirectX::XMFLOAT3 forward  = GetTransform()->CalcForward();
+
+        const float length = 0.3f;
+
+        const DirectX::XMFLOAT3 spawnPosition = {
+            position.x + (forward.x * length),
+            position.y + (forward.y * length),
+            position.z + (forward.z * length)
+        };
+
+        ProjectileStraite* projectile = new ProjectileStraite(&projectileManager_);
+        projectile->Launch(forward, spawnPosition);
+
+        launchTimer_ = launchTime_;
+    }
+
+    // 弾丸更新処理
+    projectileManager_.Update(elapsedTime);
+
 }
 
 // Updateの後に呼ばれる
@@ -119,6 +150,8 @@ void Player::Render(const float& elapsedTime, const float& scale)
     using DirectX::XMFLOAT4;
 
     Character::Render(elapsedTime, scale);
+
+    projectileManager_.Render(0.1f);
 
     // 近接攻撃用の球体描画
 #ifdef _DEBUG

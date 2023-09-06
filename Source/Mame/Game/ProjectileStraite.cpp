@@ -2,8 +2,6 @@
 
 #include "../Graphics/Graphics.h"
 
-#include "ItemManager.h"
-
 // コンストラクタ
 ProjectileStraite::ProjectileStraite(ProjectileManager* manager)
     :Projectile(manager)
@@ -12,7 +10,7 @@ ProjectileStraite::ProjectileStraite(ProjectileManager* manager)
 
     model = std::make_unique<Model>(graphics.GetDevice(), "./Resources/Model/Projectile/sqhere.fbx");
 
-    lifeTimer = 10.0f;
+    //lifeTimer = 10.0f;
 
     // ImGui名前設定
     SetName("ProjectileStraite" + std::to_string(nameNum++));
@@ -28,10 +26,10 @@ void ProjectileStraite::Update(const float& elapsedTime)
 {
     // 寿命処理
     lifeTimer -= elapsedTime;
-    if (lifeTimer < 0)
+    if (lifeTimer <= 0.0f)
     {
-        // 自分を削除
-        Destroy();
+        model->color.w -= 0.4f * elapsedTime;
+        if (model->color.w <= 0.0f) Destroy();
     }
 
     DirectX::XMFLOAT3 position = GetTransform()->GetPosition();

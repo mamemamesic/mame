@@ -218,8 +218,11 @@
     <ClCompile Include="Source\Mame\Game\Player.cpp" />
     <ClCompile Include="Source\Mame\Game\PlayerManager.cpp" />
     <ClCompile Include="Source\Mame\Game\Projectile.cpp" />
+    <ClCompile Include="Source\Mame\Game\ProjectileIcon.cpp" />
+    <ClCompile Include="Source\Mame\Game\ProjectileIconManager.cpp" />
     <ClCompile Include="Source\Mame\Game\ProjectileManager.cpp" />
     <ClCompile Include="Source\Mame\Game\ProjectileStraite.cpp" />
+    <ClCompile Include="Source\Mame\Game\ProjectileStraiteIcon.cpp" />
     <ClCompile Include="Source\Mame\Game\Stage.cpp" />
     <ClCompile Include="Source\Mame\Graphics\Bloom.cpp" />
     <ClCompile Include="Source\Mame\Graphics\Camera.cpp" />
@@ -282,8 +285,11 @@
     <ClInclude Include="Source\Mame\Game\Player.h" />
     <ClInclude Include="Source\Mame\Game\PlayerManager.h" />
     <ClInclude Include="Source\Mame\Game\Projectile.h" />
+    <ClInclude Include="Source\Mame\Game\ProjectileIcon.h" />
+    <ClInclude Include="Source\Mame\Game\ProjectileIconManager.h" />
     <ClInclude Include="Source\Mame\Game\ProjectileManager.h" />
     <ClInclude Include="Source\Mame\Game\ProjectileStraite.h" />
+    <ClInclude Include="Source\Mame\Game\ProjectileStraiteIcon.h" />
     <ClInclude Include="Source\Mame\Game\Stage.h" />
     <ClInclude Include="Source\Mame\Game\State.h" />
     <ClInclude Include="Source\Mame\Game\StateMachine.h" />

@@ -11,6 +11,7 @@
 #include "../Game/Collision.h"
 
 #include "../Game/PlayerManager.h"
+#include "../Game/EnemyManager.h"
 #include "../Game/ItemManager.h"
 #include "../Game/Book.h"
 #include "../Game/ProjectileManager.h"
@@ -87,8 +88,10 @@ void SceneDemo::CreateResource()
 
     // slime
     {
-        enemySlime[0] = std::make_unique<EnemySlime>();
-        enemySlime[1] = std::make_unique<EnemySlime>();
+        //enemySlime[0] = std::make_unique<EnemySlime>();
+        //enemySlime[1] = std::make_unique<EnemySlime>();
+
+        EnemyManager::Instance().Register(new EnemySlime);
     }
 
     // player
@@ -98,7 +101,7 @@ void SceneDemo::CreateResource()
 
     // item
     {
-        ItemManager::Instance().Register(new Book());
+        //ItemManager::Instance().Register(new Book());
     }
 
     // stage
@@ -153,8 +156,9 @@ void SceneDemo::Initialize()
 
     // enemy
     {
-        enemySlime[0]->Initialize();
-        enemySlime[1]->Initialize();
+        //enemySlime[0]->Initialize();
+        //enemySlime[1]->Initialize();
+        EnemyManager::Instance().Initialize();
     }
 
     // カメラ
@@ -164,7 +168,7 @@ void SceneDemo::Initialize()
     PlayerManager::Instance().Initialize();
 
     // item
-    ItemManager::Instance().Initialize();
+    //ItemManager::Instance().Initialize();
 
     // stage
     stage->Initialize();
@@ -173,7 +177,7 @@ void SceneDemo::Initialize()
 void SceneDemo::Finalize()
 {
     // item
-    ItemManager::Instance().Finalize();
+    //ItemManager::Instance().Finalize();
 
     // player
     PlayerManager::Instance().Finalize();
@@ -182,7 +186,7 @@ void SceneDemo::Finalize()
 void SceneDemo::Begin()
 {
     // item
-    ItemManager::Instance().Begin();
+    //ItemManager::Instance().Begin();
 }
 
 // 更新
@@ -190,14 +194,14 @@ void SceneDemo::Update(const float& elapsedTime)
 {
     GamePad& gamePad = Input::Instance().GetGamePad();
 
-    if (gamePad.GetButtonDown() & GamePad::BTN_A)
-    {
-        //for (int i = 0; i < 5; ++i)
-        {
-            effect[0]->Play({ 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f });
-        }
-        //effect[0]->Play({ 0.0f, 0.0f, 0.0f }, { 10.0f,10.0f,10.0f });
-    }
+    //if (gamePad.GetButtonDown() & GamePad::BTN_A)
+    //{
+    //    //for (int i = 0; i < 5; ++i)
+    //    {
+    //        effect[0]->Play({ 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f });
+    //    }
+    //    //effect[0]->Play({ 0.0f, 0.0f, 0.0f }, { 10.0f,10.0f,10.0f });
+    //}
 
     // GltfModel
     {
@@ -220,7 +224,8 @@ void SceneDemo::Update(const float& elapsedTime)
 #endif // SPRITE
     }
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
+#if 0
     // Debug用カメラ
     if (gamePad.GetButtonDown() & GamePad::BTN_X)isDebugCamera = isDebugCamera ? false : true;
     if (isDebugCamera)
@@ -251,8 +256,9 @@ void SceneDemo::Update(const float& elapsedTime)
 
     // slime
     {
-        enemySlime[0]->Update(elapsedTime);
-        enemySlime[1]->Update(elapsedTime);
+        //enemySlime[0]->Update(elapsedTime);
+        //enemySlime[1]->Update(elapsedTime);
+        EnemyManager::Instance().Update(elapsedTime);
 
         //DirectX::XMFLOAT3 enemySlime0offset = enemySlime[0]->GetDebugSqhereOffset();
         //DirectX::XMFLOAT3 enemySlime1offset = enemySlime[1]->GetDebugSqhereOffset();
@@ -261,26 +267,26 @@ void SceneDemo::Update(const float& elapsedTime)
         //enemySlime0position = { enemySlime0position.x + enemySlime0offset.x, enemySlime0position.y + enemySlime0offset.y, enemySlime0position.z + enemySlime0offset.z };
         //enemySlime1position = { enemySlime1position.x + enemySlime1offset.x, enemySlime1position.y + enemySlime1offset.y, enemySlime1position.z + enemySlime1offset.z };
 
-        DirectX::XMFLOAT3 outPosition;
-        if (Collision::IntersectSphereVsSphere(
-            enemySlime[0]->GetTransform()->GetPosition(),
-            //enemySlime0position,
-            enemySlime[0]->GetRange(),
-            enemySlime[1]->GetTransform()->GetPosition(),
-            //enemySlime1position,
-            enemySlime[1]->GetRange(),
-            &outPosition
-        ))
-        {
-            enemySlime[1]->GetTransform()->SetPosition(outPosition);
-        }
+        //DirectX::XMFLOAT3 outPosition;
+        //if (Collision::IntersectSphereVsSphere(
+        //    enemySlime[0]->GetTransform()->GetPosition(),
+        //    //enemySlime0position,
+        //    enemySlime[0]->GetRange(),
+        //    enemySlime[1]->GetTransform()->GetPosition(),
+        //    //enemySlime1position,
+        //    enemySlime[1]->GetRange(),
+        //    &outPosition
+        //))
+        //{
+        //    enemySlime[1]->GetTransform()->SetPosition(outPosition);
+        //}
     }
 
     // player
     PlayerManager::Instance().Update(elapsedTime);
 
     // item
-    ItemManager::Instance().Update(elapsedTime);
+    //ItemManager::Instance().Update(elapsedTime);
 
     // エフェクト更新処理
     EffectManager::Instance().Update(elapsedTime);
@@ -297,8 +303,10 @@ void SceneDemo::Render(const float& elapsedTime)
 {
     // scaleFactor
     //float enemyScaleFactor = 0.01f;
-    float enemyScaleFactor = 0.001f;
-    float playerScaleFactor = 0.01f;
+    //float playerScaleFactor = 0.01f;
+    constexpr float stageScaleFactor  = 1.0f;
+    constexpr float playerScaleFactor = 0.5f;
+    constexpr float enemyScaleFactor  = 0.001f;
 
     Graphics& graphics = Graphics::Instance();
 
@@ -361,10 +369,10 @@ void SceneDemo::Render(const float& elapsedTime)
 
             // SHADOW : 影つけたいモデルはここにRenderする
             {
-                PlayerManager::Instance().Render(elapsedTime, playerScaleFactor);
+                //PlayerManager::Instance().Render(elapsedTime, playerScaleFactor);
 
-                enemySlime[0]->Render(elapsedTime, enemyScaleFactor);
-                enemySlime[1]->Render(elapsedTime, enemyScaleFactor);
+                //enemySlime[0]->Render(elapsedTime, enemyScaleFactor);
+                //enemySlime[1]->Render(elapsedTime, enemyScaleFactor);
             }
 
             shadow.shadowMap->Deactivete(deviceContext);
@@ -415,8 +423,9 @@ void SceneDemo::Render(const float& elapsedTime)
 
     // slime
     {
-        enemySlime[0]->Render(elapsedTime, enemyScaleFactor);
-        enemySlime[1]->Render(elapsedTime, enemyScaleFactor);
+        //enemySlime[0]->Render(elapsedTime, enemyScaleFactor);
+        //enemySlime[1]->Render(elapsedTime, enemyScaleFactor);
+        EnemyManager::Instance().Render(elapsedTime, enemyScaleFactor);
     }
 
     // player
@@ -426,12 +435,12 @@ void SceneDemo::Render(const float& elapsedTime)
 
     // item
     {
-        ItemManager::Instance().Render(0.01f);
+        //ItemManager::Instance().Render(0.01f);
     }
 
     // stage
     {
-        stage->Render(elapsedTime, 1.0f);
+        stage->Render(elapsedTime, stageScaleFactor);
     }
 
     // 3Dエフェクト描画
@@ -475,10 +484,10 @@ void SceneDemo::DrawDebug()
         isDebugRender = (isDebugRender) ? false : true;
     }
 
-    if (ImGui::Button("create book"))
-    {
-        ItemManager::Instance().Register(new Book());
-    }
+    //if (ImGui::Button("create book"))
+    //{
+    //    ItemManager::Instance().Register(new Book());
+    //}
 
     // GltfModel
     {
@@ -505,8 +514,9 @@ void SceneDemo::DrawDebug()
 
     // slime
     {
-        enemySlime[0]->DrawDebug();
-        enemySlime[1]->DrawDebug();
+        EnemyManager::Instance().DrawDebug();
+        //enemySlime[0]->DrawDebug();
+        //enemySlime[1]->DrawDebug();
     }
 
     // player
