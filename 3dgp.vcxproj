@@ -87,7 +87,7 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>USE_IMGUI;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
@@ -115,7 +115,7 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;USE_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
@@ -138,7 +138,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
@@ -166,7 +166,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
@@ -211,6 +211,7 @@
     <ClCompile Include="Source\Mame\Game\Collision.cpp" />
     <ClCompile Include="Source\Mame\Game\demoStateDerived.cpp" />
     <ClCompile Include="Source\Mame\Game\Enemy.cpp" />
+    <ClCompile Include="Source\Mame\Game\EnemyManager.cpp" />
     <ClCompile Include="Source\Mame\Game\EnemySlime.cpp" />
     <ClCompile Include="Source\Mame\Game\Item.cpp" />
     <ClCompile Include="Source\Mame\Game\ItemManager.cpp" />
@@ -222,6 +223,7 @@
     <ClCompile Include="Source\Mame\Game\Stage.cpp" />
     <ClCompile Include="Source\Mame\Graphics\Bloom.cpp" />
     <ClCompile Include="Source\Mame\Graphics\Camera.cpp" />
+    <ClCompile Include="Source\Mame\Graphics\DebugRenderer.cpp" />
     <ClCompile Include="Source\Mame\Graphics\Effect.cpp" />
     <ClCompile Include="Source\Mame\Graphics\EffectManager.cpp" />
     <ClCompile Include="Source\Mame\Graphics\Graphics.cpp" />
@@ -273,6 +275,7 @@
     <ClInclude Include="Source\Mame\Game\Collision.h" />
     <ClInclude Include="Source\Mame\Game\demoStateDerived.h" />
     <ClInclude Include="Source\Mame\Game\Enemy.h" />
+    <ClInclude Include="Source\Mame\Game\EnemyManager.h" />
     <ClInclude Include="Source\Mame\Game\EnemySlime.h" />
     <ClInclude Include="Source\Mame\Game\Item.h" />
     <ClInclude Include="Source\Mame\Game\ItemManager.h" />
@@ -286,6 +289,7 @@
     <ClInclude Include="Source\Mame\Game\StateMachine.h" />
     <ClInclude Include="Source\Mame\Graphics\Bloom.h" />
     <ClInclude Include="Source\Mame\Graphics\Camera.h" />
+    <ClInclude Include="Source\Mame\Graphics\DebugRenderer.h" />
     <ClInclude Include="Source\Mame\Graphics\Effect.h" />
     <ClInclude Include="Source\Mame\Graphics\EffectManager.h" />
     <ClInclude Include="Source\Mame\Graphics\Graphics.h" />
@@ -337,6 +341,14 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Source\Shader\DebugPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Source\Shader\DebugVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="Source\Shader\finalPassPs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -520,6 +532,7 @@
     <None Include="Resources\Shader\phongShader.hlsli" />
     <None Include="Source\Shader\bidirectionalReflectanceDistributionFunction.hlsli" />
     <None Include="Source\Shader\bloom.hlsli" />
+    <None Include="Source\Shader\Debug.hlsli" />
     <None Include="Source\Shader\fullscreen_quad.hlsli" />
     <None Include="Source\Shader\geometric_primitive.hlsli" />
     <None Include="Source\Shader\gltfModel.hlsli" />

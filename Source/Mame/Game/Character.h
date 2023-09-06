@@ -51,10 +51,13 @@ public:
 
 private:
     Transform collisionSqhereTransform{};
-    DirectX::XMFLOAT3 debugSqhereOffset{};  // “–‚½‚è”»’è—p
     float range = 1.0f;                     // ‹…“–‚½‚è”»’è”¼Œa
-    
-    
+
+public:
+    DirectX::XMFLOAT3 debugSqhereOffset{};  // “–‚½‚è”»’è—p
+    float radius_ = 0.5f;                   // ‹…“–‚½‚è”»’è”¼Œa
+
+
 public: // --- ImGui—p --- //
     const char* GetName() const { return name.c_str(); }
     void SetName(std::string n) { name = n; }

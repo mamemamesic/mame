@@ -1,8 +1,6 @@
 #pragma once
 #include "Enemy.h"
 
-#include "PlayerManager.h"
-
 class EnemySlime : public Enemy
 {
 public:
@@ -18,10 +16,7 @@ public:
     void DrawDebug()                                            override; // デバッグ描画
 
 private:
-    float dist;
-    bool flg = false;
-    float time;
-    DirectX::XMFLOAT3 speed{ 0,0,0 };
-    DirectX::XMFLOAT3 pos_1;
+    float offsetY_ = 0.25f;
+
 };
 

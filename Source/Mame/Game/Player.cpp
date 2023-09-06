@@ -1,9 +1,14 @@
 #include "Player.h"
 
+#include <memory>
+
 #include "../Graphics/Graphics.h"
+#include "../Graphics/DebugRenderer.h"
 #include "../Input/Input.h"
 
 #include "AbilityManager.h"
+#include "EnemyManager.h"
+#include "Collision.h"
 
 // コンストラクタ
 Player::Player()
@@ -28,6 +33,8 @@ Player::~Player()
 // 初期化
 void Player::Initialize()
 {
+    debugSqhereOffset.y += offsetY_;
+
     Character::Initialize();
 
     // 待機アニメーションに設定してる
@@ -51,23 +58,59 @@ void Player::Begin()
 // 更新処理
 void Player::Update(const float& elapsedTime)
 {
-    Character::Update(elapsedTime);
+    using DirectX::XMFLOAT3;
+    using DirectX::XMFLOAT4;
+    using DirectX::XMConvertToRadians;
 
-    Character::UpdateAnimation(elapsedTime);
+    Transform* transform = GetTransform();
 
-    GamePad& gamePad = Input::Instance().GetGamePad();
+    Character::Update(elapsedTime); // キャラクター共通の更新処理
 
-    float aLx = gamePad.GetAxisLX();
-    float aLy = gamePad.GetAxisLY();
+    Character::UpdateAnimation(elapsedTime); // アニメーション更新
 
-    DirectX::XMFLOAT3 pos = GetTransform()->GetPosition();
+    // 移動
+    const GamePad& gamePad = Input::Instance().GetGamePad();
+    {
+        const float aLx = gamePad.GetAxisLX();
+        const float aLy = gamePad.GetAxisLY();
 
-    if (aLx > 0)pos.x += elapsedTime;
-    if (aLx < 0)pos.x -= elapsedTime;
-    if (aLy > 0)pos.z += elapsedTime;
-    if (aLy < 0)pos.z -= elapsedTime;
+        XMFLOAT3 pos = transform->GetPosition();
+        constexpr float addPos = 3.0f;
+        if (aLx != 0.0f) pos.x += ((aLx * addPos) * elapsedTime);
+        if (aLy != 0.0f) pos.z += ((aLy * addPos) * elapsedTime);
 
-    GetTransform()->SetPosition(pos);
+        // 位置更新
+        transform->SetPosition(pos);
+    }
+
+    // 回転（確認用）
+    {
+        const float aRx = gamePad.GetAxisRX();
+        const float aRy = gamePad.GetAxisRY();
+
+        XMFLOAT4 rotation = transform->GetRotation();
+        constexpr float addRotate = 90.0f;
+
+        if (aRx != 0.0f)
+        {
+            const float addRotateY = XMConvertToRadians(aRx * addRotate);
+            rotation.y += (addRotateY * elapsedTime);
+        }
+        if (aRy != 0.0f)
+        {
+            const float addRotateX = XMConvertToRadians(aRy * addRotate);
+            rotation.x += (addRotateX * elapsedTime);
+        }
+
+        // 回転値更新
+        transform->SetRotation(rotation);
+    }
+
+    // 近接攻撃入力処理
+    if (InputCloseRangeAttack() == true) CreateCloseRangeAttackSphere();
+
+    // 近接攻撃更新処理
+    UpdateCloseRangeAttack(elapsedTime);
 }
 
 // Updateの後に呼ばれる
@@ -78,7 +121,22 @@ void Player::End()
 // 描画処理
 void Player::Render(const float& elapsedTime, const float& scale)
 {
+    using DirectX::XMFLOAT4;
+
     Character::Render(elapsedTime, scale);
+
+    // 近接攻撃用の球体描画
+#ifdef _DEBUG
+    if (craSphere_.lifeTimer_ > 0.0f)
+    {
+        //craSphere_.model_->Render(1.0f, 1);
+        DebugRenderer* debugRenderer = Graphics::Instance().GetDebugRenderer();
+        const XMFLOAT4 color = { 1,1,1,1 };
+        debugRenderer->DrawSphere(
+            craSphere_.position_, craSphere_.radius_, color
+        );
+    }
+#endif // _DEBUG
 }
 
 // ImGui用
@@ -89,7 +147,90 @@ void Player::DrawDebug()
     {
         Character::DrawDebug();
 
+        float range = GetRange();
+        ImGui::DragFloat("range", &range);
+        SetRange(range);
+
         ImGui::EndMenu();
     }
 #endif // USE_IMGUI
+}
+
+
+bool Player::InputCloseRangeAttack()
+{
+    if (craSphere_.lifeTimer_ > 0.0f) return false;
+
+    const GamePad& gamePad = Input::Instance().GetGamePad();
+
+    if (gamePad.GetButtonDown() & GamePad::BTN_A)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+void Player::CreateCloseRangeAttackSphere()
+{
+    using DirectX::XMFLOAT3;
+
+    const Transform* transform  = GetTransform();
+    const XMFLOAT3   plPosition = transform->GetPosition();
+    const XMFLOAT3   forward    = transform->CalcForward();
+
+    //const float length = (0.1f + radius);   // 半径の大きさによって距離が調整されるようにする
+    const float length = 0.5f;
+
+    // プレイヤーの前らへんに位置を設定
+    const XMFLOAT3 spherePosition = {
+        plPosition.x + (forward.x * length),
+        plPosition.y + (forward.y * length) + offsetY_,
+        plPosition.z + (forward.z * length),
+    };
+
+    // パラメータ代入
+    craSphere_.position_ = spherePosition;
+    //craSphere_.model_->GetTransform()->SetScaleFactor(XMFLOAT3(diameter, diameter, diameter));
+    craSphere_.radius_ = sphereRadius_;
+    craSphere_.lifeTimer_ = sphereLifeTime_;
+}
+
+void Player::UpdateCloseRangeAttack(const float elapsedTime)
+{
+    if (craSphere_.lifeTimer_ <= 0.0f) return;
+
+    craSphere_.lifeTimer_ -= elapsedTime;
+
+    // 近接攻撃と敵との衝突処理
+    CollisionCRASphereVsEnemies();
+}
+
+void Player::CollisionCRASphereVsEnemies()
+{
+    if (craSphere_.lifeTimer_ <= 0.0f) return;
+
+    using DirectX::XMFLOAT3;
+
+    EnemyManager& enemyManager = EnemyManager::Instance();
+    const int enemyCount = enemyManager.GetEnemyCount();
+    for (int i = 0; i < enemyCount; ++i)
+    {
+        Enemy* enemy = enemyManager.GetEnemy(i);
+        const XMFLOAT3 enemyPosition  = enemy->GetTransform()->GetPosition();
+        const float    enemyRadius    = enemy->radius_;
+
+        XMFLOAT3 outPosition = {};
+        const bool isIntersect = {
+            Collision::IntersectSphereVsSphere(
+            craSphere_.position_, craSphere_.radius_,
+            enemyPosition, enemyRadius,
+            &outPosition
+            )
+        };
+
+        // 衝突した敵を消す
+        if (isIntersect == true) enemyManager.Remove(enemy);
+
+    }
 }

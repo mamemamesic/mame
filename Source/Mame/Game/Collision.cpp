@@ -1,7 +1,10 @@
 #include "Collision.h"
 
 // 球と球の交差判定
-bool Collision::IntersectSphereVsSphere(const DirectX::XMFLOAT3& positionA, const float& radiusA, const DirectX::XMFLOAT3& positionB, const float& radiusB, DirectX::XMFLOAT3& outPositionB)
+bool Collision::IntersectSphereVsSphere(
+    const DirectX::XMFLOAT3& positionA, const float& radiusA,
+    const DirectX::XMFLOAT3& positionB, const float& radiusB,
+    DirectX::XMFLOAT3* outPositionB)
 {
     // B → Aの単位ベクトルを算出
     DirectX::XMVECTOR PositionA = DirectX::XMLoadFloat3(&positionA);
@@ -22,7 +25,7 @@ bool Collision::IntersectSphereVsSphere(const DirectX::XMFLOAT3& positionA, cons
     float dist = range - lengthSq;                      // めり込んでいる距離を算出
     vec = DirectX::XMVectorScale(vec, dist);            // ベクトルに変換
     PositionB = DirectX::XMVectorAdd(PositionB, vec);   // 押し出し位置
-    DirectX::XMStoreFloat3(&outPositionB, PositionB);
+    DirectX::XMStoreFloat3(outPositionB, PositionB);
 
     return true;
 }

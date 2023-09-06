@@ -1,5 +1,6 @@
 #include "Character.h"
 #include "../Graphics/Graphics.h"
+#include "../Graphics/DebugRenderer.h"
 
 #include "../Scene/SceneDemo.h"
 
@@ -42,10 +43,19 @@ void Character::Update(const float& elapsedTime)
 // •`‰æˆ—
 void Character::Render(const float& elapsedTime, const float& scale)
 {
+    using DirectX::XMFLOAT3;
+    using DirectX::XMFLOAT4;
+
     model->Render(scale);
 
 #ifdef _DEBUG
-    if(SceneDemo::isDebugRender)debugSqhere->Render(1.0f, 1);
+    //if(SceneDemo::isDebugRender)debugSqhere->Render(1.0f, 1);
+    DebugRenderer* debugRenderer = Graphics::Instance().GetDebugRenderer();
+
+    const XMFLOAT3 position = GetTransform()->GetPosition();
+    const XMFLOAT4 color    = { 0,0,0,0 };
+    debugRenderer->DrawSphere(position, radius_, color);
+
 #endif // _DEBUG
 }
 

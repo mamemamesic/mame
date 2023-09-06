@@ -5,6 +5,7 @@
 #include <wrl.h>
 #include <mutex>
 #include "../Resource/shader.h"
+#include "../Graphics/DebugRenderer.h"
 
 #define ENABLE_DIRECT2D
 #ifdef ENABLE_DIRECT2D
@@ -39,7 +40,7 @@ public:
     ID3D11DepthStencilView* GetDepthStencilView() const { return depthStencilView.Get(); }
 
     // シェーダー取得
-    Shader* GetShader()const { return shader.get(); }
+    Shader* GetShader() const { return shader.get(); }
 
     float GetScreenWidth() const { return screenWidth; }
     float GetScreenHeight() const { return screenHeight; }
@@ -47,7 +48,8 @@ public:
     // ミューテックス取得
     std::mutex& GetMutex() { return mutex; }
 
-
+    // デバッグレンダラ取得
+    DebugRenderer* GetDebugRenderer() const { return debugRenderer_.get(); }
 
 private:
     static Graphics* instance;
@@ -66,6 +68,9 @@ private:
     std::unique_ptr<Shader> shader;
 
     std::mutex mutex;
+
+    std::unique_ptr<DebugRenderer> debugRenderer_;
+
 
     float screenWidth;
     float screenHeight;
