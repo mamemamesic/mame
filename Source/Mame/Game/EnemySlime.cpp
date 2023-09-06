@@ -1,9 +1,8 @@
 #include "EnemySlime.h"
 #include "../Graphics/Graphics.h"
 
-
 // コンストラクタ
-EnemySlime::EnemySlime()
+EnemySlime::EnemySlime(DirectX::XMFLOAT3 enemy_set)
 {
     Graphics& graphics = Graphics::Instance();
     
@@ -14,7 +13,7 @@ EnemySlime::EnemySlime()
         //"./Resources/Model/Collision/sphere.fbx");
 
     DirectX::XMFLOAT3 pos = GetTransform()->GetPosition();
-    pos = { 4,0,10 };
+    pos = enemy_set;
 
 
     GetTransform()->SetPosition(pos);
@@ -55,9 +54,23 @@ void EnemySlime::Update(const float& elapsedTime)
 
     Character::UpdateAnimation(elapsedTime);
 
+    time++;
+    
+
+
+
     DirectX::XMFLOAT3 player_pos = PlayerManager::Instance().GetPlayer()->GetTransform()->GetPosition();
     DirectX::XMFLOAT3 pos = GetTransform()->GetPosition();
     
+    if (time >= count)
+    {
+
+        //EnemyManager::Instance().Register(new EnemySlime());
+
+        
+        count += 3;
+    }
+
     DirectX::XMFLOAT3 vecPlayer = { player_pos.x - pos.x,player_pos.y - pos.y,player_pos.z - pos.z };
     dist = sqrtf(vecPlayer.x * vecPlayer.x + vecPlayer.y * vecPlayer.y + vecPlayer.z * vecPlayer.z);
     pos_1 = vecPlayer;
@@ -66,9 +79,12 @@ void EnemySlime::Update(const float& elapsedTime)
     //time += elapsedTime;
     switch (flg) {
     case false:
-        speed.x = elapsedTime * 0.01f * vecPlayer.x / dist;
+        /*speed.x = elapsedTime * 0.01f * vecPlayer.x / dist;
         speed.y = elapsedTime * 0.01f * vecPlayer.y / dist;
-        speed.z = elapsedTime * 0.01f * vecPlayer.z / dist;
+        speed.z = elapsedTime * 0.01f * vecPlayer.z / dist;*/
+        speed.x = 0;
+        speed.y = 0;
+        speed.z = -0.01f;
         flg=true;
     case true:
      /*   if (time > 5) {

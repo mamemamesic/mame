@@ -14,6 +14,7 @@
 #include "../Game/ItemManager.h"
 #include "../Game/Book.h"
 #include "../Game/ProjectileManager.h"
+#include "../Game/EnemyManager.h"
 
 bool SceneDemo::isDebugRender = true;
 
@@ -85,10 +86,30 @@ void SceneDemo::CreateResource()
         //effect[0] = std::make_unique<Effect>("./Resources/Effect/old/ring.efk");
     }
 
+
+
     // slime
     {
-        enemySlime[0] = std::make_unique<EnemySlime>();
-        enemySlime[1] = std::make_unique<EnemySlime>();
+        /*enemySlime[0] = std::make_unique<EnemySlime>();
+        enemySlime[1] = std::make_unique<EnemySlime>();*/
+        // 敵出現用構造体
+        struct EnemySet {
+            DirectX::XMFLOAT3 enemy_pos;
+        };
+
+        DirectX::XMFLOAT3 enemySet[] = {
+            { 2,0,2 },
+            {5,0,4 },
+            {3,0,6 },
+            {6,0,8 },
+            {1,0,11 },
+            {0,0,16 },
+            {5,0,20 }
+        };
+
+        for (int i = 0; i < 30; i++) {
+            EnemyManager::Instance().Register(new EnemySlime(enemySet[i]));
+        }
     }
 
     // player
@@ -153,8 +174,9 @@ void SceneDemo::Initialize()
 
     // enemy
     {
-        enemySlime[0]->Initialize();
-        enemySlime[1]->Initialize();
+       /* enemySlime[0]->Initialize();
+        enemySlime[1]->Initialize();*/
+        EnemyManager::Instance().Initialize();
     }
 
     // カメラ
@@ -177,6 +199,9 @@ void SceneDemo::Finalize()
 
     // player
     PlayerManager::Instance().Finalize();
+
+    // enemy
+    EnemyManager::Instance().Finalize();
 }
 
 void SceneDemo::Begin()
@@ -251,8 +276,9 @@ void SceneDemo::Update(const float& elapsedTime)
 
     // slime
     {
-        enemySlime[0]->Update(elapsedTime);
-        enemySlime[1]->Update(elapsedTime);
+        /*enemySlime[0]->Update(elapsedTime);
+        enemySlime[1]->Update(elapsedTime);*/
+        EnemyManager::Instance().Update(elapsedTime);
 
         //DirectX::XMFLOAT3 enemySlime0offset = enemySlime[0]->GetDebugSqhereOffset();
         //DirectX::XMFLOAT3 enemySlime1offset = enemySlime[1]->GetDebugSqhereOffset();
@@ -261,19 +287,19 @@ void SceneDemo::Update(const float& elapsedTime)
         //enemySlime0position = { enemySlime0position.x + enemySlime0offset.x, enemySlime0position.y + enemySlime0offset.y, enemySlime0position.z + enemySlime0offset.z };
         //enemySlime1position = { enemySlime1position.x + enemySlime1offset.x, enemySlime1position.y + enemySlime1offset.y, enemySlime1position.z + enemySlime1offset.z };
 
-        DirectX::XMFLOAT3 outPosition;
-        if (Collision::IntersectSphereVsSphere(
-            enemySlime[0]->GetTransform()->GetPosition(),
-            //enemySlime0position,
-            enemySlime[0]->GetRange(),
-            enemySlime[1]->GetTransform()->GetPosition(),
-            //enemySlime1position,
-            enemySlime[1]->GetRange(),
-            &outPosition
-        ))
-        {
-            enemySlime[1]->GetTransform()->SetPosition(outPosition);
-        }
+        //DirectX::XMFLOAT3 outPosition;
+        //if (Collision::IntersectSphereVsSphere(
+        //    enemySlime[0]->GetTransform()->GetPosition(),
+        //    //enemySlime0position,
+        //    enemySlime[0]->GetRange(),
+        //    enemySlime[1]->GetTransform()->GetPosition(),
+        //    //enemySlime1position,
+        //    enemySlime[1]->GetRange(),
+        //    &outPosition
+        //))
+        //{
+        //    enemySlime[1]->GetTransform()->SetPosition(outPosition);
+        //}
     }
 
     // player
@@ -363,8 +389,9 @@ void SceneDemo::Render(const float& elapsedTime)
             {
                 PlayerManager::Instance().Render(elapsedTime, playerScaleFactor);
 
-                enemySlime[0]->Render(elapsedTime, enemyScaleFactor);
-                enemySlime[1]->Render(elapsedTime, enemyScaleFactor);
+                /*enemySlime[0]->Render(elapsedTime, enemyScaleFactor);
+                enemySlime[1]->Render(elapsedTime, enemyScaleFactor);*/
+                EnemyManager::Instance().Render(elapsedTime, enemyScaleFactor);
             }
 
             shadow.shadowMap->Deactivete(deviceContext);
@@ -415,8 +442,9 @@ void SceneDemo::Render(const float& elapsedTime)
 
     // slime
     {
-        enemySlime[0]->Render(elapsedTime, enemyScaleFactor);
-        enemySlime[1]->Render(elapsedTime, enemyScaleFactor);
+        /*enemySlime[0]->Render(elapsedTime, enemyScaleFactor);
+        enemySlime[1]->Render(elapsedTime, enemyScaleFactor);*/
+        EnemyManager::Instance().Render(elapsedTime, enemyScaleFactor);
     }
 
     // player
@@ -505,8 +533,9 @@ void SceneDemo::DrawDebug()
 
     // slime
     {
-        enemySlime[0]->DrawDebug();
-        enemySlime[1]->DrawDebug();
+        /*enemySlime[0]->DrawDebug();
+        enemySlime[1]->DrawDebug();*/
+        EnemyManager::Instance().DrawDebug();
     }
 
     // player

@@ -1,10 +1,13 @@
 #pragma once
 #include "Enemy.h"
+#include "PlayerManager.h"
+
 
 class EnemySlime : public Enemy
 {
 public:
-    EnemySlime();
+    EnemySlime() {};
+    EnemySlime(DirectX::XMFLOAT3 enemy_set);
     ~EnemySlime() override;
 
     void Initialize()                                           override; // èâä˙âª
@@ -17,6 +20,11 @@ public:
 
 private:
     float offsetY_ = 0.25f;
-
+    float dist;
+    DirectX::XMFLOAT3 pos_1;
+    bool flg = false;
+    DirectX::XMFLOAT3 speed;
+    float time;
+    int count = 3;
 };
 
