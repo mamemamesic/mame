@@ -86,8 +86,8 @@ void SceneGame::Begin()
 void SceneGame::Update(const float& elapsedTime)
 {
     GamePad& gamePad = Input::Instance().GetGamePad();
-    //if (gamePad.GetButtonDown() & GamePad::BTN_A)
-    //    Mame::Scene::SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle));
+    if (gamePad.GetButtonDown() & GamePad::BTN_A)
+        Mame::Scene::SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle));
 
 
 

@@ -6,7 +6,7 @@ Stage::Stage()
 {
     Graphics& graphics = Graphics::Instance();
 
-    model = std::make_unique<Model>(graphics.GetDevice(), "./Resources/Model/Stage/plane.fbx");
+    model = std::make_unique<Model>(graphics.GetDevice(), "./Resources/Model/Stage/stage.fbx");
 }
 
 Stage::Stage(const char* filename)

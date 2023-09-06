@@ -34,6 +34,8 @@ void Player::Initialize()
     Character::PlayAnimation(0, true);
 
     GetTransform()->SetScaleFactor(50.0f);
+    DirectX::XMFLOAT3 pos{ 1,0,0 };
+    GetTransform()->SetPosition(pos);
 }
 
 // I—¹‰»
