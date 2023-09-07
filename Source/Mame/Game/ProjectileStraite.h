@@ -23,6 +23,5 @@ public:
 private:
     DirectX::XMFLOAT3 direction;    // •ûŒü
     //float speed = 1.0f;            // ‘¬“x
-    float speed = 10.0f;            // ‘¬“x
-    float lifeTimer = 2.0f;         // Žõ–½
+    //float lifeTimer_ = 1.0f;         // Žõ–½
 };

@@ -15,5 +15,9 @@ public:
     void End()                              override {} // –ˆƒtƒŒ[ƒ€ˆê”ÔÅŒã‚ÉŒÄ‚Î‚ê‚é
     void Render(const float& scale)         override;   // •`‰æˆ—
     void DrawDebug()                        override;   // ImGui—p
+
+private:
+    float launchTime_ = 1.0f;
+
 };
 

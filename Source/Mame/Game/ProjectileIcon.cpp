@@ -13,11 +13,13 @@ ProjectileIcon::ProjectileIcon(ProjectileIconManager* manager)
 // 初期化
 void ProjectileIcon::Initialize()
 {
+    projectileManager_.Initialize();
 }
 
 // 終了化
 void ProjectileIcon::Finalize()
 {
+    projectileManager_.Finalize();
 }
 
 // Updateの前に呼ばれる
@@ -28,6 +30,7 @@ void ProjectileIcon::Begin()
 // 更新処理
 void ProjectileIcon::Update(const float& elapsedTime)
 {
+    projectileManager_.Update(elapsedTime);
 }
 
 // Updateの後に呼ばれる
@@ -39,6 +42,8 @@ void ProjectileIcon::End()
 void ProjectileIcon::Render(const float& scale)
 {
     model_->Render(scale);
+
+    projectileManager_.Render(scale);
 }
 
 // ImGui用
@@ -47,6 +52,8 @@ void ProjectileIcon::DrawDebug()
 #ifdef USE_IMGUI
 
     GetTransform()->DrawDebug();
+
+    projectileManager_.DrawDebug();
 
 #endif // USE_IMGUI
 }

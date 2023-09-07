@@ -44,7 +44,6 @@ void Player::Initialize()
     // 待機アニメーションに設定してる
     Character::PlayAnimation(0, true);
 
-    projectileManager_.Initialize();
     projectileIconManager_.Initialize();
 
     new ProjectileStraiteIcon(&projectileIconManager_);
@@ -53,7 +52,6 @@ void Player::Initialize()
 // 終了化
 void Player::Finalize()
 {
-    projectileManager_.Finalize();
     projectileIconManager_.Finalize();
 }
 
@@ -123,35 +121,21 @@ void Player::Update(const float& elapsedTime)
     //// 近接攻撃更新処理
     //UpdateCloseRangeAttack(elapsedTime);
 
-    launchTimer_ -= elapsedTime;
-    if (launchTimer_ <= 0.0f)
+    // 仮
+    if (gamePad.GetButtonDown() & GamePad::BTN_A)
     {
-        const DirectX::XMFLOAT3 position = GetTransform()->GetPosition();
-        const DirectX::XMFLOAT3 forward  = GetTransform()->CalcForward();
-
-        const float length = 0.3f;
-
-        const DirectX::XMFLOAT3 spawnPosition = {
-            position.x + (forward.x * length),
-            position.y + (forward.y * length),
-            position.z + (forward.z * length)
-        };
-
-        ProjectileStraite* projectile = new ProjectileStraite(&projectileManager_);
-        projectile->Launch(forward, spawnPosition);
-
-        launchTimer_ = launchTime_;
+        // 弾丸アイコン追加
+        new ProjectileStraiteIcon(&projectileIconManager_);
     }
-
-    // 弾丸更新処理
-    projectileManager_.Update(elapsedTime);
-
 
     // 弾丸アイコン更新処理
     {
         // 位置設定
-        int pileUpCounter = 0; // 重ねた数をカウントする
-        int columnCounter = 0; // 列の数をカウントする
+        int   pileUpCounter   = 0;       // 重ねた数をカウントする
+        int   columnCounter   = 0;       // 列の数をカウントする
+        float shiftLeft       = 0.0f;    // すべての列を等しく左にずらす
+        float shitRight       = 0.0f;    // それぞれの列を列数に比例して右にずらす
+        bool  isColumnChanged = false;
         const int projectileiconCount = projectileIconManager_.GetProjectileIconCount();
         for (int i = 0; i < projectileiconCount; ++i)
         {
@@ -164,35 +148,54 @@ void Player::Update(const float& elapsedTime)
             constexpr float addPositionY = 0.2f;
             constexpr float addPositionX = (-0.1f);
 
-            // 一定数積んだら列を分けて１から積み上げ直す
-            if (pileUpCounter >= projectileIconManager_.PILE_UP_COUNT_MAX_)
-            {
-                pileUpCounter = 0; // 積み上げカウントをリセット
-                ++columnCounter;   // 列カウントを増やす
-            }
-
             // Y位置設定
             projectileIconTransform->SetPositionY(plTop + (static_cast<float>(pileUpCounter) * addPositionY));
 
-            const float columnCount = static_cast<float>(projectileIconManager_.columnCounter_);
-            const float shiftLeft = (columnCount * addPositionX);               // すべての列を等しく左にずらす
-            const float shitRight = (static_cast<float>(columnCounter) * 0.1f); // それぞれの列を列数に比例して右にずらす
+            const float columnCount         = static_cast<float>(projectileIconManager_.columnCounter_);
+            const int   projectileIconCount = projectileIconManager_.GetProjectileIconCount();
 
-            // まず列を全体的に左にずらしてから個々の列を列数に比例して右にずらす
+#if 1 // 列がずれるタイミングの違い確認用
+            if (projectileIconCount % 5 != 0)
+#endif
+            {
+                shiftLeft = (columnCount * addPositionX);
+                shitRight = (static_cast<float>(columnCounter) * 0.1f);
+
+                projectileIcon->shitLeft_  = shiftLeft;
+                projectileIcon->shitRight_ = shitRight;
+            }
+
+            // 列を全体的に左にずらしてから個々の列を列数に比例して右にずらしていく
             projectileIconTransform->SetPositionX(
-                (plPosition.x + projectileIcon->offsetX_) + shiftLeft + shitRight
+                plPosition.x + projectileIcon->offsetX_ +
+                projectileIcon->shitLeft_ + projectileIcon->shitRight_
             );
 
             ++pileUpCounter; // 積み上げカウント加算
+
+            // 一定数積んだら列を分けて１から積み上げ直すA
+            if (pileUpCounter >= projectileIconManager_.PILE_UP_COUNT_MAX_)
+            {
+                pileUpCounter   = 0;    // 積み上げカウントをリセット
+                ++columnCounter;        // 列カウントを増やす
+            }
+
         }
 
         projectileIconManager_.Update(elapsedTime);
-    }
 
-    // 仮
-    if (gamePad.GetButtonDown() & GamePad::BTN_A)
-    {
-        new ProjectileStraiteIcon(&projectileIconManager_);
+#ifdef USE_IMGUI
+        if (ImGui::Begin("Count"))
+        {
+            ImGui::InputInt("pileUpCounter", &pileUpCounter);
+            ImGui::InputInt("columnCounter", &columnCounter);
+            ImGui::InputFloat("shiftLeft", &shiftLeft);
+            ImGui::InputFloat("shitRight", &shitRight);
+            ImGui::Checkbox("isColumnChanged", &isColumnChanged);
+
+            ImGui::End();
+        }
+#endif // USE_IMGUI
     }
 
 }
@@ -208,8 +211,6 @@ void Player::Render(const float& elapsedTime, const float& scale)
     using DirectX::XMFLOAT4;
 
     Character::Render(elapsedTime, scale);
-
-    projectileManager_.Render(0.1f);
 
     projectileIconManager_.Render(0.1f);
 
@@ -234,6 +235,8 @@ void Player::DrawDebug()
     if (ImGui::BeginMenu("player"))
     {
         Character::DrawDebug();
+
+        projectileIconManager_.DrawDebug();
 
         float range = GetRange();
         ImGui::DragFloat("range", &range);

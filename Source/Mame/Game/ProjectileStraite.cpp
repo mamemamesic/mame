@@ -25,18 +25,14 @@ void ProjectileStraite::Initialize()
 void ProjectileStraite::Update(const float& elapsedTime)
 {
     // éıñΩèàóù
-    lifeTimer -= elapsedTime;
-    if (lifeTimer <= 0.0f)
-    {
-        model->color.w -= 0.4f * elapsedTime;
-        if (model->color.w <= 0.0f) Destroy();
-    }
+    lifeTimer_ -= elapsedTime;
+    if (lifeTimer_ <= 0.0f) Destroy();
 
     DirectX::XMFLOAT3 position = GetTransform()->GetPosition();
 
     // à⁄ìÆ
     {
-        float speed = this->speed * elapsedTime;
+        float speed = this->speed_ * elapsedTime;
         position.x += direction.x * speed;
         position.y += direction.y * speed;
         position.z += direction.z * speed;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Graphics/Model.h"
+#include "../Game/ProjectileManager.h"
 
 // 前方宣言
 class ProjectileIconManager;
@@ -30,13 +31,22 @@ public: // 取得・設定　関連
 
 public:
     std::unique_ptr<Model> model_ = nullptr;
+    ProjectileManager      projectileManager_   = {};
 
-    float offsetX_ = 0.0f;
+    float offsetX_      = 0.0f;
+    float shitLeft_     = 0.0f;
+    float shitRight_    = 0.0f;
+
+    float setLifeTime_  = 4.0f;     // 弾丸に設定
+    float setSpeed_     = 20.0f;    // 弾丸に設定
+
+protected:
+    float launchTimer_ = 0.0f;
 
 private:
-    ProjectileIconManager* manager_ = nullptr;
+    ProjectileIconManager* manager_             = nullptr;
 
-    float radius_ = 0.5f;
+    float radius_      = 0.5f;
 
 public: // --- ImGui用 --- //
     const char* GetName() const { return name_.c_str(); }

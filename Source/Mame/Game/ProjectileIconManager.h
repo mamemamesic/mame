@@ -24,9 +24,12 @@ public:
     void Clear();                           // ‘Síœ
 
 public: // æ“¾Eİ’è@ŠÖ˜A
-    const int GetProjectileIconCount() const { return static_cast<int>(projectileIcons.size()); } // ’eŠÛ”æ“¾
+    const int GetProjectileIconCount() const { return static_cast<int>(projectileIcons_.size()); } // ’eŠÛ”æ“¾
 
-    ProjectileIcon* GetProjectileIcon(int index) { return projectileIcons.at(index); } // ’eŠÛæ“¾
+    ProjectileIcon* GetProjectileIcon(int index) { return projectileIcons_.at(index); } // ’eŠÛæ“¾
+
+private:
+    void AddProjectileSpeedAll();
 
 public:
     static constexpr int PILE_UP_COUNT_MAX_ = 5; // Ï‚İã‚°Å‘å”
@@ -36,7 +39,7 @@ public:
     int columnCounter_  = 0; // —ñ‚ğ”‚¦‚é
 
 private:
-    std::vector<ProjectileIcon*>  projectileIcons = {};
-    std::set<ProjectileIcon*>     removes = {};
+    std::vector<ProjectileIcon*>  projectileIcons_ = {};
+    std::set<ProjectileIcon*>     removes_ = {};
 
 };

@@ -60,10 +60,6 @@ private:
 
     float offsetY_          = 0.5f;
 
-    ProjectileManager projectileManager_ = {};
-    float launchTimer_       = 0.0f;
-    float launchTime_        = 1.0f;
-
     ProjectileIconManager projectileIconManager_ = {};
 };
 

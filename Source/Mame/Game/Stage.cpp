@@ -16,7 +16,8 @@ Stage::~Stage()
 
 void Stage::Initialize()
 {
-    GetTransform()->SetScale(DirectX::XMFLOAT3(6.0f, 1.0f, 200.0f));
+    GetTransform()->SetPosition(DirectX::XMFLOAT3(0.0f, 0.0f, 49.0f));
+    GetTransform()->SetScale(DirectX::XMFLOAT3(6.0f, 1.0f, 100.0f));
     //GetTransform()->SetScaleFactor(100.0f);
     GetTransform()->SetScaleFactor(1.0f);
 }

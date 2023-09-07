@@ -181,6 +181,8 @@ void SceneDemo::Finalize()
 
     // player
     PlayerManager::Instance().Finalize();
+
+    EnemyManager::Instance().Finalize();
 }
 
 void SceneDemo::Begin()
