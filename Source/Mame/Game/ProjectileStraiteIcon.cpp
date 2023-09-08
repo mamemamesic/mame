@@ -11,8 +11,6 @@ ProjectileStraiteIcon::ProjectileStraiteIcon(ProjectileIconManager* manager)
 {
     Graphics& graphics = Graphics::Instance();
 
-    model_ = std::make_unique<Model>(graphics.GetDevice(), "./Resources/Model/Projectile/sqhere.fbx");
-
     // ImGui–¼‘OÝ’è
     SetName("ProjectileStraite" + std::to_string(nameNum_++));
 }
@@ -46,8 +44,9 @@ void ProjectileStraiteIcon::Update(const float& elapsedTime)
         };
 
         ProjectileStraite* projectile = new ProjectileStraite(&projectileManager_);
-        projectile->speed_     = setSpeed_;
-        projectile->lifeTimer_ = setLifeTime_;
+        projectile->speed_       = setSpeed_;
+        projectile->lifeTimer_   = setLifeTime_;
+        projectile->model->color = model_->color;
         projectile->Launch(forward, spawnPosition);
 
         launchTimer_ = launchTime_;

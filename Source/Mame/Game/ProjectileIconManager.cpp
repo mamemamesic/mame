@@ -81,9 +81,15 @@ void ProjectileIconManager::End()
 // 描画処理
 void ProjectileIconManager::Render(const float& scale)
 {
-    for (ProjectileIcon*& projectileIcon : projectileIcons_)
+    //for (ProjectileIcon*& projectileIcon : projectileIcons_)
+    //{
+    //    projectileIcon->Render(scale);
+    //}
+    const int projectileIconCount = GetProjectileIconCount();
+    for (int i = 0; i < projectileIconCount; ++i)
     {
-        projectileIcon->Render(scale);
+        if (i >= projectileIconRenderLimit_) break;
+        GetProjectileIcon(i)->Render(scale);
     }
 }
 
@@ -99,18 +105,40 @@ void ProjectileIconManager::DrawDebug()
 // 登録
 void ProjectileIconManager::Register(ProjectileIcon* projectileIcon)
 {
-    projectileIcon->offsetX_ = (0.1f * columnCounter_); // 生成位置を列に応じて右にずらしていく
+    projectileIcon->offsetX_      = (0.1f * columnCounter_); // 生成位置を列に応じて右にずらしていく
     projectileIcons_.emplace_back(projectileIcon);
+
+    if (GetProjectileIconCount() > 175)
+    {
+        Remove(projectileIcon);
+        return;
+    }
 
     // 縦にある程度積んだら分列させて左にずらすようにする
     ++pileUpCounter_;
-    if (pileUpCounter_ >= PILE_UP_COUNT_MAX_)
+    if (pileUpCounter_ >= PILE_UP_COUNT_MAX_ &&
+        columnCounter_ < 4)
     {
-        ++columnCounter_;   // 列を加算
+       ++columnCounter_;   // 列を加算
 
-        AddProjectileSpeedAll();
+       AddProjectileSpeedAll(); // 弾丸速度上昇
 
-        pileUpCounter_ = 0; // 積み上げカウントをリセット
+       pileUpCounter_ = 0; // 積み上げカウントをリセット
+    }
+
+    // 色替え
+    if (pileUpCounter_ > PILE_UP_COUNT_MAX_ &&
+        columnCounter_ >= 4)
+    {
+        ProjectileIcon* projectileIcon = GetProjectileIcon(colorChangeProjectileIconIndex_);
+        projectileIcon->model_->color = colorTable_[colorTableIndex_];
+
+        ++colorChangeProjectileIconIndex_;
+        if (colorChangeProjectileIconIndex_ >= projectileIconRenderLimit_)
+        {
+            colorChangeProjectileIconIndex_ = 0;
+            if (colorTableIndex_ < (ColorTableLabel::IndexMax - 1)) ++colorTableIndex_;
+        }
     }
 
 }
@@ -144,8 +172,8 @@ void ProjectileIconManager::AddProjectileSpeedAll()
     for (ProjectileIcon*& projectileIcon : projectileIcons_)
     {
         // 速度上昇・寿命タイマー減少
-        constexpr float addSpeed         = 10.0f;
-        constexpr float multiplyLifeTime = 0.7f;
+        constexpr float addSpeed         = 15.0f;
+        constexpr float multiplyLifeTime = 0.6f;
         projectileIcon->setSpeed_    += addSpeed;
         projectileIcon->setLifeTime_ *= multiplyLifeTime;
     }

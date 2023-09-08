@@ -6,6 +6,18 @@
 
 class ProjectileIconManager
 {
+private:
+    enum ColorTableLabel
+    {
+        Red,
+        Yellow,
+        Green,
+        Blue,
+        Purple,
+        Black,
+        IndexMax,
+    };
+
 public:
     ProjectileIconManager();
     ~ProjectileIconManager();
@@ -38,8 +50,22 @@ public:
     int pileUpCounter_  = 0; // Ï‚İã‚°‚½”‚ğ”‚¦‚é
     int columnCounter_  = 0; // —ñ‚ğ”‚¦‚é
 
+    int projectileIconRenderLimit_ = 25;
+
 private:
     std::vector<ProjectileIcon*>  projectileIcons_ = {};
     std::set<ProjectileIcon*>     removes_ = {};
+
+    DirectX::XMFLOAT4 colorTable_[ColorTableLabel::IndexMax] = {
+        { 1,0,0,1 },
+        { 1,1,0,1 },
+        { 0,1,0,1 },
+        { 0,0,1,1 },
+        { 1,0,1,1 },
+        { 0.1f, 0.1f, 0.1f, 1 },
+    };
+    int colorTableIndex_ = {};
+
+    int colorChangeProjectileIconIndex_ = 0;
 
 };

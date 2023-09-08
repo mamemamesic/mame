@@ -1,15 +1,9 @@
 #include "ProjectileStraite.h"
 
-#include "../Graphics/Graphics.h"
-
 // コンストラクタ
 ProjectileStraite::ProjectileStraite(ProjectileManager* manager)
     :Projectile(manager)
 {
-    Graphics& graphics = Graphics::Instance();
-
-    model = std::make_unique<Model>(graphics.GetDevice(), "./Resources/Model/Projectile/sqhere.fbx");
-
     //lifeTimer = 10.0f;
 
     // ImGui名前設定
@@ -24,11 +18,13 @@ void ProjectileStraite::Initialize()
 // 更新処理
 void ProjectileStraite::Update(const float& elapsedTime)
 {
-    // 寿命処理
-    lifeTimer_ -= elapsedTime;
-    if (lifeTimer_ <= 0.0f) Destroy();
+    //// 寿命処理
+    //lifeTimer_ -= elapsedTime;
+    //if (lifeTimer_ <= 0.0f) Destroy();
 
     DirectX::XMFLOAT3 position = GetTransform()->GetPosition();
+
+    if (position.z >= 80.0f) Destroy();
 
     // 移動
     {

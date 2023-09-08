@@ -44,9 +44,9 @@ void Player::Initialize()
     // 待機アニメーションに設定してる
     Character::PlayAnimation(0, true);
 
-    projectileIconManager_.Initialize();
-
     new ProjectileStraiteIcon(&projectileIconManager_);
+
+    projectileIconManager_.Initialize();
 }
 
 // 終了化
@@ -121,81 +121,92 @@ void Player::Update(const float& elapsedTime)
     //// 近接攻撃更新処理
     //UpdateCloseRangeAttack(elapsedTime);
 
-    // 仮
-    if (gamePad.GetButtonDown() & GamePad::BTN_A)
+#ifdef _DEBUG
+    // 弾丸アイコン追加
+    if (gamePad.GetButton() & GamePad::BTN_A)
     {
-        // 弾丸アイコン追加
         new ProjectileStraiteIcon(&projectileIconManager_);
     }
+#endif
 
     // 弾丸アイコン更新処理
     {
         // 位置設定
-        int   pileUpCounter   = 0;       // 重ねた数をカウントする
-        int   columnCounter   = 0;       // 列の数をカウントする
-        float shiftLeft       = 0.0f;    // すべての列を等しく左にずらす
-        float shitRight       = 0.0f;    // それぞれの列を列数に比例して右にずらす
-        bool  isColumnChanged = false;
-        const int projectileiconCount = projectileIconManager_.GetProjectileIconCount();
-        for (int i = 0; i < projectileiconCount; ++i)
         {
-            ProjectileIcon* projectileIcon          = projectileIconManager_.GetProjectileIcon(i);
-            Transform*      projectileIconTransform = projectileIcon->GetTransform();
+            int   pileUpCounter   = 0;       // 重ねた数をカウントする
+            int   columnCounter   = 0;       // 列の数をカウントする
+            float shiftLeft       = 0.0f;    // すべての列を等しく左にずらす
+            float shiftRight      = 0.0f;    // それぞれの列を列数に比例して右にずらす
 
-            const XMFLOAT3 plPosition = GetTransform()->GetPosition();
-            const float    plTop      = (plPosition.y + 0.4f);
+#ifdef USE_IMGUI
+            int projectileIconCount = projectileIconManager_.GetProjectileIconCount();
+#else
+            const int projectileIconCount = projectileIconManager_.GetProjectileIconCount();
+#endif
+            for (int i = 0; i < projectileIconCount; ++i)
+            {
+                const int projectileIconRenderLimit = projectileIconManager_.projectileIconRenderLimit_;
+                if (i >= projectileIconRenderLimit) break;
 
-            constexpr float addPositionY = 0.2f;
-            constexpr float addPositionX = (-0.1f);
+                ProjectileIcon* projectileIcon = projectileIconManager_.GetProjectileIcon(i);
+                Transform* projectileIconTransform = projectileIcon->GetTransform();
 
-            // Y位置設定
-            projectileIconTransform->SetPositionY(plTop + (static_cast<float>(pileUpCounter) * addPositionY));
+                const XMFLOAT3 plPosition = GetTransform()->GetPosition();
+                const float    plTop = (plPosition.y + 0.4f);
 
-            const float columnCount         = static_cast<float>(projectileIconManager_.columnCounter_);
-            const int   projectileIconCount = projectileIconManager_.GetProjectileIconCount();
+                constexpr float addPositionY = 0.2f;
+                constexpr float addPositionX = (-0.1f);
+
+                // Y位置設定
+                projectileIconTransform->SetPositionY(
+                    plTop + (static_cast<float>(pileUpCounter) * addPositionY)
+                );
+
+                const float columnCount = static_cast<float>(projectileIconManager_.columnCounter_);
 
 #if 1 // 列がずれるタイミングの違い確認用
-            if (projectileIconCount % 5 != 0)
+                if (projectileIconCount % 5 != 0)
 #endif
-            {
-                shiftLeft = (columnCount * addPositionX);
-                shitRight = (static_cast<float>(columnCounter) * 0.1f);
+                {
+                    shiftLeft = (columnCount * addPositionX);
+                    shiftRight = (static_cast<float>(columnCounter) * 0.1f);
 
-                projectileIcon->shitLeft_  = shiftLeft;
-                projectileIcon->shitRight_ = shitRight;
+                    projectileIcon->shitLeft_  = shiftLeft;
+                    projectileIcon->shitRight_ = shiftRight;
+                }
+
+                // 列を全体的に左にずらしてから個々の列を列数に比例して右にずらしていく
+                projectileIconTransform->SetPositionX(
+                    plPosition.x + projectileIcon->offsetX_ +
+                    projectileIcon->shitLeft_ + projectileIcon->shitRight_
+                );
+
+                ++pileUpCounter; // 積み上げカウント加算
+
+                // 一定数積んだら列を分けて１から積み上げ直す
+                if (pileUpCounter >= projectileIconManager_.PILE_UP_COUNT_MAX_)
+                {
+                    pileUpCounter = 0;    // 積み上げカウントをリセット
+                    ++columnCounter;        // 列カウントを増やす
+                }
+
             }
 
-            // 列を全体的に左にずらしてから個々の列を列数に比例して右にずらしていく
-            projectileIconTransform->SetPositionX(
-                plPosition.x + projectileIcon->offsetX_ +
-                projectileIcon->shitLeft_ + projectileIcon->shitRight_
-            );
-
-            ++pileUpCounter; // 積み上げカウント加算
-
-            // 一定数積んだら列を分けて１から積み上げ直すA
-            if (pileUpCounter >= projectileIconManager_.PILE_UP_COUNT_MAX_)
+#ifdef USE_IMGUI
+            if (ImGui::Begin("ProjectileIconParameter"))
             {
-                pileUpCounter   = 0;    // 積み上げカウントをリセット
-                ++columnCounter;        // 列カウントを増やす
-            }
+                ImGui::InputInt("pileUpCounter", &pileUpCounter);
+                ImGui::InputInt("columnCounter", &columnCounter);
+                ImGui::InputFloat("shiftLeft", &shiftLeft);
+                ImGui::InputFloat("shiftRight", &shiftRight);
+                ImGui::InputInt("projectileIconCount", &projectileIconCount);
 
+                ImGui::End();
+            }
+#endif // USE_IMGUI
         }
 
         projectileIconManager_.Update(elapsedTime);
-
-#ifdef USE_IMGUI
-        if (ImGui::Begin("Count"))
-        {
-            ImGui::InputInt("pileUpCounter", &pileUpCounter);
-            ImGui::InputInt("columnCounter", &columnCounter);
-            ImGui::InputFloat("shiftLeft", &shiftLeft);
-            ImGui::InputFloat("shitRight", &shitRight);
-            ImGui::Checkbox("isColumnChanged", &isColumnChanged);
-
-            ImGui::End();
-        }
-#endif // USE_IMGUI
     }
 
 }

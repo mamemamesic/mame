@@ -1,12 +1,18 @@
 #include "ProjectileIcon.h"
 #include "ProjectileIconManager.h"
 
+#include <memory>
+#include "../Graphics/Graphics.h"
+
 int ProjectileIcon::nameNum_ = 0;
 
 // コンストラクタ
 ProjectileIcon::ProjectileIcon(ProjectileIconManager* manager)
     : manager_(manager)
 {
+    Graphics& graphics = Graphics::Instance();
+    model_ = std::make_unique<Model>(graphics.GetDevice(), "./Resources/Model/Projectile/sqhere.fbx");
+
     manager->Register(this);
 }
 
