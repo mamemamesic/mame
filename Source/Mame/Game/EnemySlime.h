@@ -25,7 +25,5 @@ private:
     float time;
     int enemy_count;
     int state = 0;
-
-    
 };
 
