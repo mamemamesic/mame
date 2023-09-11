@@ -435,8 +435,9 @@ void SceneGame::Render(const float& elapsedTime)
     // MODEL_RENDER
     // •`‰æ‚µ‚½‚¢‚à‚Ì‚ÍŒÂX‚É‘‚­
     {
-        constexpr float stageScaleFactor = 1.0f;
-        stage_->Render(elapsedTime, stageScaleFactor);
+        //constexpr float stageScaleFactor = 1.0f;
+        //stage_->Render(elapsedTime, stageScaleFactor);
+        stage_->Render(elapsedTime);
 
         constexpr float playerScaleFactor = 0.5f;
         playerManager.Render(elapsedTime, playerScaleFactor);

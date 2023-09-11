@@ -15,6 +15,7 @@
 #include "../Game/ItemManager.h"
 #include "../Game/Book.h"
 #include "../Game/ProjectileManager.h"
+#include "../Game/EnemyManager.h"
 
 bool SceneDemo::isDebugRender = true;
 
@@ -86,12 +87,38 @@ void SceneDemo::CreateResource()
         //effect[0] = std::make_unique<Effect>("./Resources/Effect/old/ring.efk");
     }
 
+
+
     // slime
     {
         //enemySlime[0] = std::make_unique<EnemySlime>();
         //enemySlime[1] = std::make_unique<EnemySlime>();
 
-        EnemyManager::Instance().Register(new EnemySlime);
+        //EnemyManager::Instance().Register(new EnemySlime);
+
+        DirectX::XMFLOAT3 enemySet[] = {
+            { 0,0,10 },
+            {5,0,15 },
+            {3,0,20 },
+            {6,0,25 },
+            {1,0,30 },
+            {0,0,35 },
+            {-2,0,40 },
+            {5,0,45 },
+            {3,0,50 },
+            {6,0,55 },
+            {1,0,60 },
+            {0,0,65 },
+            {-2,0,70 }
+        };
+
+#define ENEMY_MAX sizeof(enemySet)/sizeof(enemySet[0])
+
+        for (int i = 0; i < ENEMY_MAX; i++) {
+            EnemyManager::Instance().Register(new EnemySlime(enemySet[i],i));
+
+
+        }
     }
 
     // player
@@ -154,18 +181,20 @@ void SceneDemo::Initialize()
 {
     Graphics& graphics = Graphics::Instance();
 
-    // enemy
-    {
-        //enemySlime[0]->Initialize();
-        //enemySlime[1]->Initialize();
-        EnemyManager::Instance().Initialize();
-    }
-
     // カメラ
     Camera::Instance().Initialize();
 
     // player
     PlayerManager::Instance().Initialize();
+
+    // enemy
+    {
+        //enemySlime[0]->Initialize();
+        //enemySlime[1]->Initialize();
+        /* enemySlime[0]->Initialize();
+         enemySlime[1]->Initialize();*/
+        EnemyManager::Instance().Initialize();
+    }
 
     // item
     //ItemManager::Instance().Initialize();
@@ -182,6 +211,7 @@ void SceneDemo::Finalize()
     // player
     PlayerManager::Instance().Finalize();
 
+    // enemy
     EnemyManager::Instance().Finalize();
 }
 
@@ -256,10 +286,14 @@ void SceneDemo::Update(const float& elapsedTime)
         Camera::Instance().Update();
     }
 
+    // player
+    PlayerManager::Instance().Update(elapsedTime);
+
     // slime
     {
         //enemySlime[0]->Update(elapsedTime);
         //enemySlime[1]->Update(elapsedTime);
+
         EnemyManager::Instance().Update(elapsedTime);
 
         //DirectX::XMFLOAT3 enemySlime0offset = enemySlime[0]->GetDebugSqhereOffset();
@@ -283,9 +317,6 @@ void SceneDemo::Update(const float& elapsedTime)
         //    enemySlime[1]->GetTransform()->SetPosition(outPosition);
         //}
     }
-
-    // player
-    PlayerManager::Instance().Update(elapsedTime);
 
     // item
     //ItemManager::Instance().Update(elapsedTime);
@@ -427,6 +458,7 @@ void SceneDemo::Render(const float& elapsedTime)
     {
         //enemySlime[0]->Render(elapsedTime, enemyScaleFactor);
         //enemySlime[1]->Render(elapsedTime, enemyScaleFactor);
+
         EnemyManager::Instance().Render(elapsedTime, enemyScaleFactor);
     }
 
@@ -442,7 +474,7 @@ void SceneDemo::Render(const float& elapsedTime)
 
     // stage
     {
-        stage->Render(elapsedTime, stageScaleFactor);
+        stage->Render(stageScaleFactor);
     }
 
     // 3Dエフェクト描画
@@ -516,7 +548,7 @@ void SceneDemo::DrawDebug()
 
     // slime
     {
-        EnemyManager::Instance().DrawDebug();
+        //EnemyManager::Instance().DrawDebug();
         //enemySlime[0]->DrawDebug();
         //enemySlime[1]->DrawDebug();
     }
