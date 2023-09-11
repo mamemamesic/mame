@@ -2,6 +2,8 @@
 #include "Enemy.h"
 #include "PlayerManager.h"
 
+#include "ProjectileManager.h"
+
 class EnemySlime : public Enemy
 {
 public:
@@ -26,6 +28,9 @@ private:
     int enemy_count;
     int state = 0;
 
+    ProjectileManager projectileManager;
+
+    float launchTimer = 0.0f;
     
 };
 

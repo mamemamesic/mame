@@ -1,5 +1,8 @@
 #include "EnemySlime.h"
 #include "../Graphics/Graphics.h"
+#include "ProjectileStraite.h"
+#include "PlayerManager.h"
+
 
 // コンストラクタ
 EnemySlime::EnemySlime(DirectX::XMFLOAT3 enemy_set,int count)
@@ -56,8 +59,12 @@ void EnemySlime::Update(const float& elapsedTime)
 
     Character::UpdateAnimation(elapsedTime);
 
+    projectileManager.Update(elapsedTime);
+
     //DirectX::XMFLOAT3 player_pos = PlayerManager::Instance().GetPlayer()->GetTransform()->GetPosition();
     DirectX::XMFLOAT3 pos = GetTransform()->GetPosition();
+
+    DirectX::XMFLOAT3 Forward = PlayerManager::Instance().GetPlayer()->GetTransform()->CalcForward();
 
     /*DirectX::XMFLOAT3 vecPlayer = { player_pos.x - pos.x,player_pos.y - pos.y,player_pos.z - pos.z };
     dist = sqrtf(vecPlayer.x * vecPlayer.x + vecPlayer.y * vecPlayer.y + vecPlayer.z * vecPlayer.z);
@@ -103,6 +110,22 @@ void EnemySlime::Update(const float& elapsedTime)
 
         break;
     }
+
+    if (launchTimer <= 0.0f)
+    {
+        ProjectileStraite* projectile = new ProjectileStraite(&projectileManager);
+
+        /*Forward.z = -Forward.z;*/
+
+        projectile->Launch(Forward, pos);
+
+        GetTransform()->SetPosition(pos);
+
+        launchTimer = 1.0;
+    }
+
+    launchTimer -= elapsedTime;
+
 
     //PlayerManager::Instance().GetPlayer()->GetTransform()->SetPosition(player_pos);
     GetTransform()->SetPosition(pos);
