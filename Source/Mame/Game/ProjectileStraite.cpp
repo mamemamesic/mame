@@ -72,6 +72,8 @@ void ProjectileStraite::Launch(const DirectX::XMFLOAT3& direction, const DirectX
 
 void ProjectileStraite::CollisionProjectileVsEnemies()
 {
+    if (this->hp_ <= 0) return;
+
     using DirectX::XMFLOAT3;
 
     EnemyManager& enemyManager = EnemyManager::Instance();
@@ -96,7 +98,7 @@ void ProjectileStraite::CollisionProjectileVsEnemies()
                 // 敵の所持している弾丸アイコンの数だけプレイヤーの弾丸アイコンを追加
                 const std::unique_ptr<Player>& player = PlayerManager::Instance().GetPlayer();
                 const int enemyProjIconCount = enemy->projectileIconManager_.GetProjectileIconCount();
-                for (int i = 0; i < enemyProjIconCount; ++i)
+                for (int j = 0; j < enemyProjIconCount; ++j)
                 {
                     new ProjectileStraiteIcon(&player->projectileIconManager_);
                 }
@@ -104,7 +106,8 @@ void ProjectileStraite::CollisionProjectileVsEnemies()
                 enemyManager.Remove(enemy);
             }
 
-            this->Destroy(); // 弾丸消去
+            --this->hp_;
+            if (this->hp_ <= 0) { this->Destroy(); } // 弾丸消去
 
             break; // 弾が当たって消えたのでbreak終了
         }

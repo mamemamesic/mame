@@ -139,15 +139,16 @@ void EnemySlime::Update(const float& elapsedTime)
                 ProjectileIcon* projectileIcon = projectileIconManager_.GetProjectileIcon(i);
                 Transform* projectileIconTransform = projectileIcon->GetTransform();
 
-                const XMFLOAT3 plPosition = GetTransform()->GetPosition();
-                const float    plTop = (plPosition.y + 0.4f);
+                const XMFLOAT3& parentPosition = GetTransform()->GetPosition();
+                //const float     parentTop = (parentPosition.y + 0.4f);
+                const float     parentTop = (parentPosition.y + 1.0f);
 
                 constexpr float addPositionY = 0.2f;
                 constexpr float addPositionX = (-0.1f);
 
                 // Y位置設定
                 projectileIconTransform->SetPositionY(
-                    plTop + (static_cast<float>(pileUpCounter) * addPositionY)
+                    parentTop + (static_cast<float>(pileUpCounter) * addPositionY)
                 );
 
                 const float columnCount = static_cast<float>(projectileIconManager_.columnCounter_);
@@ -165,9 +166,12 @@ void EnemySlime::Update(const float& elapsedTime)
 
                 // 列を全体的に左にずらしてから個々の列を列数に比例して右にずらしていく
                 projectileIconTransform->SetPositionX(
-                    plPosition.x + projectileIcon->offsetX_ +
+                    parentPosition.x + projectileIcon->offsetX_ +
                     projectileIcon->shitLeft_ + projectileIcon->shitRight_
                 );
+
+                // Z
+                projectileIconTransform->SetPositionZ(parentPosition.z);
 
                 ++pileUpCounter; // 積み上げカウント加算
 

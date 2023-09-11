@@ -33,6 +33,7 @@ public:
 
     float speed_     = 0.0f;
     float lifeTimer_ = 0.0f;
+    int hp_ = 1;
 
 private:
     ProjectileManager* manager = nullptr;
