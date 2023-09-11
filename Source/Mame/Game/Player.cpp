@@ -123,7 +123,7 @@ void Player::Update(const float& elapsedTime)
 
 #ifdef _DEBUG
     // íeä€ÉAÉCÉRÉìí«â¡
-    if (gamePad.GetButton() & GamePad::BTN_A)
+    if (gamePad.GetButtonDown() & GamePad::BTN_A)
     {
         new ProjectileStraiteIcon(&projectileIconManager_);
     }
