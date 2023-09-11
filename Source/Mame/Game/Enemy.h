@@ -1,10 +1,12 @@
 #pragma once
 #include "Character.h"
 
+class EnemyManager;
+
 class Enemy : public Character
 {
 public:
-    Enemy() {}
+    Enemy(EnemyManager* manager);
     virtual ~Enemy() {};
 
     virtual void Initialize();                                          // ‰Šú‰»
@@ -15,8 +17,9 @@ public:
     virtual void Render(const float& elapsedTime, const float& scale);  // •`‰æˆ—
     virtual void DrawDebug() = 0;                                       // ƒfƒoƒbƒO•`‰æ
 
-
+public:
+    void Destroy(); // ”jŠü
 private:
-
+    EnemyManager* manager = nullptr;
 };
 

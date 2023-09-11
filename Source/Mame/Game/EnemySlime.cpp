@@ -2,7 +2,8 @@
 #include "../Graphics/Graphics.h"
 
 // コンストラクタ
-EnemySlime::EnemySlime(DirectX::XMFLOAT3 enemy_set,int count)
+EnemySlime::EnemySlime(EnemyManager* manager, DirectX::XMFLOAT3 enemy_set, int count)
+    :Enemy(manager)
 {
     Graphics& graphics = Graphics::Instance();
     
@@ -103,7 +104,9 @@ void EnemySlime::Update(const float& elapsedTime)
         break;
     }
 
-
+    if (pos.z < -10) {
+        Destroy();
+    }
 
     //PlayerManager::Instance().GetPlayer()->GetTransform()->SetPosition(player_pos);
     GetTransform()->SetPosition(pos);

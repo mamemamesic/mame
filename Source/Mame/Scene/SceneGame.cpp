@@ -61,7 +61,7 @@ void SceneGame::Initialize()
         playerManager.GetPlayer() = std::make_unique<Player>();
 
         // “G¶¬
-        enemyManager.Register(new EnemySlime());
+        //enemyManager.Register(new EnemySlime());
     }
 
     // ‰Šú‰»

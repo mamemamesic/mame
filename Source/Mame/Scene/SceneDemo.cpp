@@ -18,6 +18,23 @@
 
 bool SceneDemo::isDebugRender = true;
 
+DirectX::XMFLOAT3 enemySet[] = {
+            { 0,0,10 },
+            {5,0,15 },
+            {3,0,20 },
+            {6,0,25 },
+            {1,0,30 },
+            {0,0,35 },
+            {-2,0,40 },
+            {5,0,45 },
+            {3,0,50 },
+            {6,0,55 },
+            {1,0,60 },
+            {0,0,65 },
+            {-2,0,70 }
+};
+#define ENEMY_MAX sizeof(enemySet)/sizeof(enemySet[0])
+
 // ÉäÉ\Å[ÉXê∂ê¨
 void SceneDemo::CreateResource()
 {
@@ -92,27 +109,13 @@ void SceneDemo::CreateResource()
     {
         /*enemySlime[0] = std::make_unique<EnemySlime>();
         enemySlime[1] = std::make_unique<EnemySlime>();*/
-        DirectX::XMFLOAT3 enemySet[] = {
-            { 0,0,10 },
-            {5,0,15 },
-            {3,0,20 },
-            {6,0,25 },
-            {1,0,30 },
-            {0,0,35 },
-            {-2,0,40 },
-            {5,0,45 },
-            {3,0,50 },
-            {6,0,55 },
-            {1,0,60 },
-            {0,0,65 },
-            {-2,0,70 }
-        };
-#define ENEMY_MAX sizeof(enemySet)/sizeof(enemySet[0])
-        
+        /*for (int i = 0; i < ENEMY_MAX; i++) {
+            EnemyManager::Instance().GetEnemy(i).
+
+        }*/
         for (int i = 0; i < ENEMY_MAX; i++) {
-            EnemyManager::Instance().Register(new EnemySlime(enemySet[i],i));
-
-
+            //EnemyManager::Instance().Register(new EnemySlime(enemySet[i],i));
+            new EnemySlime(&EnemyManager::Instance(), enemySet[i], i);
         }
     }
 
@@ -283,7 +286,12 @@ void SceneDemo::Update(const float& elapsedTime)
         /*enemySlime[0]->Update(elapsedTime);
         enemySlime[1]->Update(elapsedTime);*/
         EnemyManager::Instance().Update(elapsedTime);
-
+        /*for (int i = 0; i < ENEMY_MAX; i++) {
+            DirectX::XMFLOAT3 enemy_pos = EnemyManager::Instance().GetEnemy(i)->GetTransform()->GetPosition();
+            if (enemy_pos.z <= 0) {
+                EnemyManager::Instance().Remove(EnemyManager::Instance().GetEnemy(i));
+            }
+        }*/
         //DirectX::XMFLOAT3 enemySlime0offset = enemySlime[0]->GetDebugSqhereOffset();
         //DirectX::XMFLOAT3 enemySlime1offset = enemySlime[1]->GetDebugSqhereOffset();
         //DirectX::XMFLOAT3 enemySlime0position = enemySlime[0]->GetTransform()->GetPosition();
