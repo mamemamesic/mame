@@ -1,5 +1,8 @@
 #include "EnemySlime.h"
+
 #include "../Graphics/Graphics.h"
+#include "EnemyManager.h"
+#include "ProjectileStraiteIcon.h"
 
 // コンストラクタ
 EnemySlime::EnemySlime(DirectX::XMFLOAT3 enemy_set,int count)
@@ -37,11 +40,16 @@ void EnemySlime::Initialize()
     Enemy::Initialize();
 
     Character::PlayAnimation(0, true);
+
+    new ProjectileStraiteIcon(&projectileIconManager_);
+
+    projectileIconManager_.Initialize();
 }
 
 // 終了化
 void EnemySlime::Finalize()
 {
+    projectileIconManager_.Finalize();
 }
 
 // Updateの前に呼ばれる
@@ -52,6 +60,8 @@ void EnemySlime::Begin()
 // 更新処理
 void EnemySlime::Update(const float& elapsedTime)
 {
+    using DirectX::XMFLOAT3;
+
     Enemy::Update(elapsedTime);
 
     Character::UpdateAnimation(elapsedTime);
@@ -64,7 +74,7 @@ void EnemySlime::Update(const float& elapsedTime)
     pos_1 = vecPlayer;*/
 
     time++;
-    float elapsedFream = 60.0f * elapsedTime;
+    float elapsedFrame = 60.0f * elapsedTime;
     //雑魚敵の設定
     switch (state) {
     case 0:
@@ -89,11 +99,11 @@ void EnemySlime::Update(const float& elapsedTime)
         }
         break;
     case 2: //ボスの設定
-        speed.x = 0.01;
+        speed.x = 0.01f;
         state = 4;
         break;
     case 3:
-        speed.x = -0.01;
+        speed.x = -0.01f;
         state = 4;
         break;
     case 4:
@@ -106,6 +116,73 @@ void EnemySlime::Update(const float& elapsedTime)
 
     //PlayerManager::Instance().GetPlayer()->GetTransform()->SetPosition(player_pos);
     GetTransform()->SetPosition(pos);
+
+    // 弾丸アイコン更新処理
+    {
+        // 位置設定
+        {
+            int   pileUpCounter = 0;       // 重ねた数をカウントする
+            int   columnCounter = 0;       // 列の数をカウントする
+            float shiftLeft = 0.0f;    // すべての列を等しく左にずらす
+            float shiftRight = 0.0f;    // それぞれの列を列数に比例して右にずらす
+
+#ifdef USE_IMGUI
+            int projectileIconCount = projectileIconManager_.GetProjectileIconCount();
+#else
+            const int projectileIconCount = projectileIconManager_.GetProjectileIconCount();
+#endif
+            for (int i = 0; i < projectileIconCount; ++i)
+            {
+                const int projectileIconRenderLimit = projectileIconManager_.projectileIconRenderLimit_;
+                if (i >= projectileIconRenderLimit) break;
+
+                ProjectileIcon* projectileIcon = projectileIconManager_.GetProjectileIcon(i);
+                Transform* projectileIconTransform = projectileIcon->GetTransform();
+
+                const XMFLOAT3 plPosition = GetTransform()->GetPosition();
+                const float    plTop = (plPosition.y + 0.4f);
+
+                constexpr float addPositionY = 0.2f;
+                constexpr float addPositionX = (-0.1f);
+
+                // Y位置設定
+                projectileIconTransform->SetPositionY(
+                    plTop + (static_cast<float>(pileUpCounter) * addPositionY)
+                );
+
+                const float columnCount = static_cast<float>(projectileIconManager_.columnCounter_);
+
+#if 1 // 列がずれるタイミングの違い確認用
+                if (projectileIconCount % 5 != 0)
+#endif
+                {
+                    shiftLeft = (columnCount * addPositionX);
+                    shiftRight = (static_cast<float>(columnCounter) * 0.1f);
+
+                    projectileIcon->shitLeft_ = shiftLeft;
+                    projectileIcon->shitRight_ = shiftRight;
+                }
+
+                // 列を全体的に左にずらしてから個々の列を列数に比例して右にずらしていく
+                projectileIconTransform->SetPositionX(
+                    plPosition.x + projectileIcon->offsetX_ +
+                    projectileIcon->shitLeft_ + projectileIcon->shitRight_
+                );
+
+                ++pileUpCounter; // 積み上げカウント加算
+
+                // 一定数積んだら列を分けて１から積み上げ直す
+                if (pileUpCounter >= projectileIconManager_.PILE_UP_COUNT_MAX_)
+                {
+                    pileUpCounter = 0;    // 積み上げカウントをリセット
+                    ++columnCounter;        // 列カウントを増やす
+                }
+
+            }
+        }
+
+        projectileIconManager_.Update(elapsedTime);
+    }
 }
 
 // Updateの後に呼ばれる
@@ -117,6 +194,9 @@ void EnemySlime::End()
 void EnemySlime::Render(const float& elapsedTime, const float& scale)
 {
     Enemy::Render(elapsedTime, scale);
+
+    projectileIconManager_.Render(0.1f);
+
 }
 
 // ImGui用
@@ -126,6 +206,8 @@ void EnemySlime::DrawDebug()
     if (ImGui::BeginMenu(GetName()))
     {
         Character::DrawDebug();
+
+        projectileIconManager_.DrawDebug();
 
         float range = GetRange();
         ImGui::DragFloat("range", &range);
@@ -142,4 +224,16 @@ void EnemySlime::DrawDebug()
         ImGui::EndMenu();
     }
 #endif // USE_IMGUI
+}
+
+
+void EnemySlime::Death()
+{
+    //const int projIconCount = projectileIconManager_.GetProjectileIconCount();
+    //for (int i = 0; i < projIconCount; ++i)
+    //{
+    //    projectileIconManager_.Register(new ProjectileIconStraite());
+    //}
+
+    //EnemyManager::Instance().Remove(this);
 }

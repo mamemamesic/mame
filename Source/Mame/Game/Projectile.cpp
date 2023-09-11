@@ -45,7 +45,19 @@ void Projectile::End()
 // •`‰æˆ—
 void Projectile::Render(const float& scale)
 {
+    using DirectX::XMFLOAT3;
+    using DirectX::XMFLOAT4;
+
     model->Render(scale);
+
+#ifdef _DEBUG
+    DebugRenderer* debugRenderer = Graphics::Instance().GetDebugRenderer();
+
+    const XMFLOAT3 position = GetTransform()->GetPosition();
+    const XMFLOAT4 color    = { 0,0,0,1 };
+    debugRenderer->DrawSphere(position, radius_, color);
+
+#endif // _DEBUG
 }
 
 // ImGui—p

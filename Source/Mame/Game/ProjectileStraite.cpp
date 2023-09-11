@@ -1,5 +1,10 @@
 #include "ProjectileStraite.h"
 
+#include "EnemyManager.h"
+#include "PlayerManager.h"
+#include "ProjectileStraiteIcon.h"
+#include "Collision.h"
+
 // コンストラクタ
 ProjectileStraite::ProjectileStraite(ProjectileManager* manager)
     :Projectile(manager)
@@ -35,6 +40,8 @@ void ProjectileStraite::Update(const float& elapsedTime)
     }
 
     GetTransform()->SetPosition(position);
+
+    CollisionProjectileVsEnemies();
 }
 
 // 描画処理
@@ -61,4 +68,45 @@ void ProjectileStraite::Launch(const DirectX::XMFLOAT3& direction, const DirectX
 {
     this->direction = direction;
     GetTransform()->SetPosition(position);
+}
+
+void ProjectileStraite::CollisionProjectileVsEnemies()
+{
+    using DirectX::XMFLOAT3;
+
+    EnemyManager& enemyManager = EnemyManager::Instance();
+    const int enemyCount = enemyManager.GetEnemyCount();
+    for (int i = 0; (i < enemyCount); ++i)
+    {
+        Enemy* enemy = enemyManager.GetEnemy(i);
+
+        if (enemy->hp_ <= 0) return;
+
+        const XMFLOAT3& projectilePos = GetTransform()->GetPosition();
+        const XMFLOAT3& enemyPos = enemy->GetTransform()->GetPosition();
+
+        XMFLOAT3 outPosition = {};
+        if (Collision::IntersectSphereVsSphere(
+            projectilePos, GetRadius(),
+            enemyPos, enemy->radius_, &outPosition))
+        {
+            --enemy->hp_;
+            if (enemy->hp_ <= 0)
+            {
+                // 敵の所持している弾丸アイコンの数だけプレイヤーの弾丸アイコンを追加
+                const std::unique_ptr<Player>& player = PlayerManager::Instance().GetPlayer();
+                const int enemyProjIconCount = enemy->projectileIconManager_.GetProjectileIconCount();
+                for (int i = 0; i < enemyProjIconCount; ++i)
+                {
+                    new ProjectileStraiteIcon(&player->projectileIconManager_);
+                }
+
+                enemyManager.Remove(enemy);
+            }
+
+            this->Destroy(); // 弾丸消去
+
+            break; // 弾が当たって消えたのでbreak終了
+        }
+    }
 }

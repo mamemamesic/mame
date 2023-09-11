@@ -21,7 +21,10 @@ public:
     void Launch(const DirectX::XMFLOAT3& direction, const DirectX::XMFLOAT3& position);
 
 private:
-    DirectX::XMFLOAT3 direction;    // •ûŒü
+    void CollisionProjectileVsEnemies();
+
+private:
+    DirectX::XMFLOAT3 direction = {};    // •ûŒü
     //float speed = 1.0f;            // ‘¬“x
     //float lifeTimer_ = 1.0f;         // Žõ–½
 };

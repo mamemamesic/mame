@@ -53,6 +53,9 @@ private:
 
     void CollisionCRASphereVsEnemies();                     // ‹…‘Ì‚Æ“G‚Æ‚ÌÕ“Ëˆ—
 
+public:
+    ProjectileIconManager projectileIconManager_ = {};
+
 private:
     CloseRangeAttackSphere craSphere_ = {}; // ‹ßÚUŒ‚—p‚Ì‹…‘Ì
     float sphereRadius_     = 0.5f;
@@ -60,6 +63,5 @@ private:
 
     float offsetY_          = 0.5f;
 
-    ProjectileIconManager projectileIconManager_ = {};
 };
 

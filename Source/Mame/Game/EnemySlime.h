@@ -17,6 +17,8 @@ public:
     void Render(const float& elapsedTime, const float& scale)   override; // 描画処理
     void DrawDebug()                                            override; // デバッグ描画
 
+    void Death() override;
+
 private:
     float offsetY_ = 0.25f;
     float dist;
@@ -26,6 +28,6 @@ private:
     int enemy_count;
     int state = 0;
 
-    
+
 };
 

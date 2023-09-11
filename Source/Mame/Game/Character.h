@@ -55,7 +55,7 @@ private:
 
 public:
     DirectX::XMFLOAT3 debugSqhereOffset{};  // “–‚½‚è”»’è—p
-    float radius_ = 0.5f;                   // ‹…“–‚½‚è”»’è”¼Œa
+    float radius_ = 0.3f;                   // ‹…“–‚½‚è”»’è”¼Œa
 
 
 public: // --- ImGui—p --- //

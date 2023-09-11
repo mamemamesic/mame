@@ -98,18 +98,18 @@ void SceneDemo::CreateResource()
 
         DirectX::XMFLOAT3 enemySet[] = {
             { 0,0,10 },
-            {5,0,15 },
-            {3,0,20 },
-            {6,0,25 },
-            {1,0,30 },
-            {0,0,35 },
-            {-2,0,40 },
-            {5,0,45 },
-            {3,0,50 },
-            {6,0,55 },
-            {1,0,60 },
-            {0,0,65 },
-            {-2,0,70 }
+            //{5,0,15 },
+            //{3,0,20 },
+            //{6,0,25 },
+            //{1,0,30 },
+            //{0,0,35 },
+            //{-2,0,40 },
+            //{5,0,45 },
+            //{3,0,50 },
+            //{6,0,55 },
+            //{1,0,60 },
+            //{0,0,65 },
+            //{-2,0,70 }
         };
 
 #define ENEMY_MAX sizeof(enemySet)/sizeof(enemySet[0])
@@ -485,6 +485,17 @@ void SceneDemo::Render(const float& elapsedTime)
         DirectX::XMStoreFloat4x4(&projection, camera.GetProjectionMatrix());
 
         EffectManager::Instance().Render(view, projection);
+    }
+
+    // 3Dデバッグ描画
+    {
+        Camera& camera = Camera::Instance();
+        DirectX::XMFLOAT4X4 view, projection;
+        DirectX::XMStoreFloat4x4(&view, camera.GetViewMatrix());
+        DirectX::XMStoreFloat4x4(&projection, camera.GetProjectionMatrix());
+
+        // デバッグレンダラ描画実行
+        graphics.GetDebugRenderer()->Render(graphics.GetDeviceContext(), view, projection);
     }
 
 #if BLOOM

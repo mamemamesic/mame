@@ -53,7 +53,7 @@ void Character::Render(const float& elapsedTime, const float& scale)
     DebugRenderer* debugRenderer = Graphics::Instance().GetDebugRenderer();
 
     const XMFLOAT3 position = GetTransform()->GetPosition();
-    const XMFLOAT4 color    = { 0,0,0,0 };
+    const XMFLOAT4 color    = { 0,0,0,1 };
     debugRenderer->DrawSphere(position, radius_, color);
 
 #endif // _DEBUG

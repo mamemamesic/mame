@@ -47,12 +47,6 @@ void Player::Initialize()
     new ProjectileStraiteIcon(&projectileIconManager_);
 
     projectileIconManager_.Initialize();
-
-//=======
-//    GetTransform()->SetScaleFactor(50.0f);
-//    DirectX::XMFLOAT3 pos{ 1,0,0 };
-//    GetTransform()->SetPosition(pos);
-//>>>>>>> origin/source_1
 }
 
 // èIóπâª
@@ -197,19 +191,6 @@ void Player::Update(const float& elapsedTime)
                 }
 
             }
-
-#ifdef USE_IMGUI
-            if (ImGui::Begin("ProjectileIconParameter"))
-            {
-                ImGui::InputInt("pileUpCounter", &pileUpCounter);
-                ImGui::InputInt("columnCounter", &columnCounter);
-                ImGui::InputFloat("shiftLeft", &shiftLeft);
-                ImGui::InputFloat("shiftRight", &shiftRight);
-                ImGui::InputInt("projectileIconCount", &projectileIconCount);
-
-                ImGui::End();
-            }
-#endif // USE_IMGUI
         }
 
         projectileIconManager_.Update(elapsedTime);

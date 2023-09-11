@@ -25,8 +25,8 @@ public:
 public: // æ“¾Eİ’è@ŠÖ˜A
     Transform* GetTransform() { return model->GetTransform(); }
 
-    float GetRadius()const { return radius; }   // ”¼Œaæ“¾
-    void SetRadius(float r) { radius = r; }     // ”¼Œaİ’è
+    float GetRadius()const { return radius_; }   // ”¼Œaæ“¾
+    void SetRadius(float r) { radius_ = r; }     // ”¼Œaİ’è
 
 public:
     std::unique_ptr<Model> model = nullptr;
@@ -37,7 +37,7 @@ public:
 private:
     ProjectileManager* manager = nullptr;
 
-    float radius = 0.5f;
+    float radius_ = 0.15f;
 
 public: // --- ImGui—p --- //
     const char* GetName() const { return name.c_str(); }
