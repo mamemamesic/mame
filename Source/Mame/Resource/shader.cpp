@@ -34,7 +34,7 @@ HRESULT CreateVsFromCso(ID3D11Device* device, const char* cso_name, ID3D11Vertex
             cso_data.get(), cso_sz, input_layout);
         _ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
     }
-    
+
     return hr;
 }
 
@@ -279,17 +279,22 @@ Shader::Shader(ID3D11Device* device)
             lightConstant.pointLight.color = DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
             lightConstant.pointLight.range = 5.0f;
 #else
+
+#if 0
             for (int i = 0; i < pointLightMax; ++i)
             {
                 lightConstant.pointLight[i].position=DirectX::XMFLOAT4(0.0f, 1.5f, 3.0f, 0.0f);
                 lightConstant.pointLight[i].color = DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
                 lightConstant.pointLight[i].range = 5.0f;
             }
+#endif
+
 #endif// POINT_LIGHT_ONE
         }
 
         // SPOT_LIGHT
         {
+#if 0
             lightConstant.spotLight.position = DirectX::XMFLOAT4(0.0f, 1.0f, 15.0f, 0.0f);
             lightConstant.spotLight.color = DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
             lightConstant.spotLight.direction = DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f);
@@ -302,24 +307,33 @@ Shader::Shader(ID3D11Device* device)
             DirectX::XMStoreFloat3(&lightConstant.spotLight.direction, spotLightDirectionVec);
 
             lightConstant.spotLight.angle = DirectX::XMConvertToRadians(-5.0f);
+#endif
         }
 
         // HEMISPHERE_LIGHT
         {
+#if 1
             // 地面色
-            lightConstant.hemisphereLight.groundColor.x = 0.7f;
-            lightConstant.hemisphereLight.groundColor.y = 0.5f;
-            lightConstant.hemisphereLight.groundColor.z = 0.3f;
+            //lightConstant.hemisphereLight.groundColor.x = 0.7f;
+            //lightConstant.hemisphereLight.groundColor.y = 0.5f;
+            //lightConstant.hemisphereLight.groundColor.z = 0.3f;
+            lightConstant.hemisphereLight.groundColor.x = 1.0f;
+            lightConstant.hemisphereLight.groundColor.y = 1.0f;
+            lightConstant.hemisphereLight.groundColor.z = 1.0f;
 
             // 天球色
-            lightConstant.hemisphereLight.skyColor.x = 0.15f;
-            lightConstant.hemisphereLight.skyColor.y = 0.7f;
-            lightConstant.hemisphereLight.skyColor.z = 0.95f;
+            //lightConstant.hemisphereLight.skyColor.x = 0.15f;
+            //lightConstant.hemisphereLight.skyColor.y = 0.7f;
+            //lightConstant.hemisphereLight.skyColor.z = 0.95f;
+            lightConstant.hemisphereLight.skyColor.x = 1.0f;
+            lightConstant.hemisphereLight.skyColor.y = 1.0f;
+            lightConstant.hemisphereLight.skyColor.z = 1.0f;
 
             // 地面の法線を設定
             lightConstant.hemisphereLight.groundNormal.x = 0.0f;
             lightConstant.hemisphereLight.groundNormal.y = 1.0f;
             lightConstant.hemisphereLight.groundNormal.z = 0.0f;
+#endif
         }
     }
 }
@@ -349,11 +363,11 @@ void Shader::Begin(ID3D11DeviceContext* deviceContext, const RenderContext& rc)
 
     // ビュープロジェクション変換行列を計算し、それを定数バッファにセットする
     camera.SetPerspectiveFov(deviceContext);
-        
+
 
     SceneConstants scene{};
     DirectX::XMStoreFloat4x4(&scene.viewProjection, camera.GetViewMatrix() * camera.GetProjectionMatrix());
-    
+
     scene.lightDirection = { view.position.x,view.position.y,view.position.z,view.position.w };
     scene.cameraPosition = { view.camera.x,view.camera.y,view.camera.z,view.camera.w };
     deviceContext->UpdateSubresource(sceneConstantBuffer[0].Get(), 0, 0, &scene, 0, 0);
@@ -467,7 +481,7 @@ void Shader::DrawDebug()
 
         ImGui::TreePop();
     }
-    
+
     camera.DrawDebug();
 
     ImGui::End();

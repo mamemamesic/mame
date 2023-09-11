@@ -2,11 +2,10 @@
 #include "../Graphics/Graphics.h"
 
 // コンストラクタ
-EnemySlime::EnemySlime(EnemyManager* manager, DirectX::XMFLOAT3 enemy_set, int count)
-    :Enemy(manager)
+EnemySlime::EnemySlime(DirectX::XMFLOAT3 enemy_set,int count)
 {
     Graphics& graphics = Graphics::Instance();
-    
+
     model = std::make_unique<Model>(graphics.GetDevice(),
         //"./Resources/Model/sanaModel/mameoall.fbx");
         "./Resources/Model/testModel/plantune.fbx");
@@ -33,6 +32,7 @@ EnemySlime::~EnemySlime()
 void EnemySlime::Initialize()
 {
     debugSqhereOffset.y += offsetY_;
+    GetTransform()->SetPosition(DirectX::XMFLOAT3(0, 0, 20));
 
     Enemy::Initialize();
 
@@ -58,11 +58,11 @@ void EnemySlime::Update(const float& elapsedTime)
 
     //DirectX::XMFLOAT3 player_pos = PlayerManager::Instance().GetPlayer()->GetTransform()->GetPosition();
     DirectX::XMFLOAT3 pos = GetTransform()->GetPosition();
-    
+
     /*DirectX::XMFLOAT3 vecPlayer = { player_pos.x - pos.x,player_pos.y - pos.y,player_pos.z - pos.z };
     dist = sqrtf(vecPlayer.x * vecPlayer.x + vecPlayer.y * vecPlayer.y + vecPlayer.z * vecPlayer.z);
     pos_1 = vecPlayer;*/
-    
+
     time++;
     float elapsedFream = 60.0f * elapsedTime;
     //雑魚敵の設定
@@ -102,10 +102,6 @@ void EnemySlime::Update(const float& elapsedTime)
         if (pos.x < -4)state = 2;
 
         break;
-    }
-
-    if (pos.z < -10) {
-        Destroy();
     }
 
     //PlayerManager::Instance().GetPlayer()->GetTransform()->SetPosition(player_pos);

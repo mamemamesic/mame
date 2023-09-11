@@ -9,6 +9,8 @@
 #include "AbilityManager.h"
 #include "EnemyManager.h"
 #include "Collision.h"
+#include "ProjectileStraite.h"
+#include "ProjectileStraiteIcon.h"
 
 // コンストラクタ
 Player::Player()
@@ -23,6 +25,7 @@ Player::Player()
             //"./Resources/Model/sanaModel/mameoall.fbx");
             //"./Resources/Model/testModel/nico.fbx");
     }
+
 }
 
 // デストラクタ
@@ -33,6 +36,7 @@ Player::~Player()
 // 初期化
 void Player::Initialize()
 {
+    GetTransform()->SetPosition(DirectX::XMFLOAT3(0, 0.25f, 0));
     debugSqhereOffset.y += offsetY_;
 
     Character::Initialize();
@@ -40,14 +44,21 @@ void Player::Initialize()
     // 待機アニメーションに設定してる
     Character::PlayAnimation(0, true);
 
-    GetTransform()->SetScaleFactor(50.0f);
-    DirectX::XMFLOAT3 pos{ 1,0,0 };
-    GetTransform()->SetPosition(pos);
+    new ProjectileStraiteIcon(&projectileIconManager_);
+
+    projectileIconManager_.Initialize();
+
+//=======
+//    GetTransform()->SetScaleFactor(50.0f);
+//    DirectX::XMFLOAT3 pos{ 1,0,0 };
+//    GetTransform()->SetPosition(pos);
+//>>>>>>> origin/source_1
 }
 
 // 終了化
 void Player::Finalize()
 {
+    projectileIconManager_.Finalize();
 }
 
 // Updateの前に呼ばれる
@@ -72,12 +83,16 @@ void Player::Update(const float& elapsedTime)
     const GamePad& gamePad = Input::Instance().GetGamePad();
     {
         const float aLx = gamePad.GetAxisLX();
-        const float aLy = gamePad.GetAxisLY();
+        //const float aLy = gamePad.GetAxisLY();
 
         XMFLOAT3 pos = transform->GetPosition();
         constexpr float addPos = 3.0f;
         if (aLx != 0.0f) pos.x += ((aLx * addPos) * elapsedTime);
-        if (aLy != 0.0f) pos.z += ((aLy * addPos) * elapsedTime);
+        //if (aLy != 0.0f) pos.z += ((aLy * addPos) * elapsedTime);
+
+        constexpr float posLimitX = 1.875f;
+        if      (pos.x < -posLimitX) pos.x = -posLimitX;
+        else if (pos.x >  posLimitX) pos.x =  posLimitX;
 
         // 位置更新
         transform->SetPosition(pos);
@@ -106,11 +121,100 @@ void Player::Update(const float& elapsedTime)
         transform->SetRotation(rotation);
     }
 
-    // 近接攻撃入力処理
-    if (InputCloseRangeAttack() == true) CreateCloseRangeAttackSphere();
+    //// 近接攻撃入力処理
+    //if (InputCloseRangeAttack() == true) CreateCloseRangeAttackSphere();
 
-    // 近接攻撃更新処理
-    UpdateCloseRangeAttack(elapsedTime);
+    //// 近接攻撃更新処理
+    //UpdateCloseRangeAttack(elapsedTime);
+
+#ifdef _DEBUG
+    // 弾丸アイコン追加
+    if (gamePad.GetButtonDown() & GamePad::BTN_A)
+    {
+        new ProjectileStraiteIcon(&projectileIconManager_);
+    }
+#endif
+
+    // 弾丸アイコン更新処理
+    {
+        // 位置設定
+        {
+            int   pileUpCounter   = 0;       // 重ねた数をカウントする
+            int   columnCounter   = 0;       // 列の数をカウントする
+            float shiftLeft       = 0.0f;    // すべての列を等しく左にずらす
+            float shiftRight      = 0.0f;    // それぞれの列を列数に比例して右にずらす
+
+#ifdef USE_IMGUI
+            int projectileIconCount = projectileIconManager_.GetProjectileIconCount();
+#else
+            const int projectileIconCount = projectileIconManager_.GetProjectileIconCount();
+#endif
+            for (int i = 0; i < projectileIconCount; ++i)
+            {
+                const int projectileIconRenderLimit = projectileIconManager_.projectileIconRenderLimit_;
+                if (i >= projectileIconRenderLimit) break;
+
+                ProjectileIcon* projectileIcon = projectileIconManager_.GetProjectileIcon(i);
+                Transform* projectileIconTransform = projectileIcon->GetTransform();
+
+                const XMFLOAT3 plPosition = GetTransform()->GetPosition();
+                const float    plTop = (plPosition.y + 0.4f);
+
+                constexpr float addPositionY = 0.2f;
+                constexpr float addPositionX = (-0.1f);
+
+                // Y位置設定
+                projectileIconTransform->SetPositionY(
+                    plTop + (static_cast<float>(pileUpCounter) * addPositionY)
+                );
+
+                const float columnCount = static_cast<float>(projectileIconManager_.columnCounter_);
+
+#if 1 // 列がずれるタイミングの違い確認用
+                if (projectileIconCount % 5 != 0)
+#endif
+                {
+                    shiftLeft = (columnCount * addPositionX);
+                    shiftRight = (static_cast<float>(columnCounter) * 0.1f);
+
+                    projectileIcon->shitLeft_  = shiftLeft;
+                    projectileIcon->shitRight_ = shiftRight;
+                }
+
+                // 列を全体的に左にずらしてから個々の列を列数に比例して右にずらしていく
+                projectileIconTransform->SetPositionX(
+                    plPosition.x + projectileIcon->offsetX_ +
+                    projectileIcon->shitLeft_ + projectileIcon->shitRight_
+                );
+
+                ++pileUpCounter; // 積み上げカウント加算
+
+                // 一定数積んだら列を分けて１から積み上げ直す
+                if (pileUpCounter >= projectileIconManager_.PILE_UP_COUNT_MAX_)
+                {
+                    pileUpCounter = 0;    // 積み上げカウントをリセット
+                    ++columnCounter;        // 列カウントを増やす
+                }
+
+            }
+
+#ifdef USE_IMGUI
+            if (ImGui::Begin("ProjectileIconParameter"))
+            {
+                ImGui::InputInt("pileUpCounter", &pileUpCounter);
+                ImGui::InputInt("columnCounter", &columnCounter);
+                ImGui::InputFloat("shiftLeft", &shiftLeft);
+                ImGui::InputFloat("shiftRight", &shiftRight);
+                ImGui::InputInt("projectileIconCount", &projectileIconCount);
+
+                ImGui::End();
+            }
+#endif // USE_IMGUI
+        }
+
+        projectileIconManager_.Update(elapsedTime);
+    }
+
 }
 
 // Updateの後に呼ばれる
@@ -124,6 +228,8 @@ void Player::Render(const float& elapsedTime, const float& scale)
     using DirectX::XMFLOAT4;
 
     Character::Render(elapsedTime, scale);
+
+    projectileIconManager_.Render(0.1f);
 
     // 近接攻撃用の球体描画
 #ifdef _DEBUG
@@ -146,6 +252,8 @@ void Player::DrawDebug()
     if (ImGui::BeginMenu("player"))
     {
         Character::DrawDebug();
+
+        projectileIconManager_.DrawDebug();
 
         float range = GetRange();
         ImGui::DragFloat("range", &range);

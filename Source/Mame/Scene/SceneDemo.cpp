@@ -11,29 +11,13 @@
 #include "../Game/Collision.h"
 
 #include "../Game/PlayerManager.h"
+#include "../Game/EnemyManager.h"
 #include "../Game/ItemManager.h"
 #include "../Game/Book.h"
 #include "../Game/ProjectileManager.h"
 #include "../Game/EnemyManager.h"
 
 bool SceneDemo::isDebugRender = true;
-
-DirectX::XMFLOAT3 enemySet[] = {
-            { 0,0,10 },
-            {5,0,15 },
-            {3,0,20 },
-            {6,0,25 },
-            {1,0,30 },
-            {0,0,35 },
-            {-2,0,40 },
-            {5,0,45 },
-            {3,0,50 },
-            {6,0,55 },
-            {1,0,60 },
-            {0,0,65 },
-            {-2,0,70 }
-};
-#define ENEMY_MAX sizeof(enemySet)/sizeof(enemySet[0])
 
 // リソース生成
 void SceneDemo::CreateResource()
@@ -107,15 +91,33 @@ void SceneDemo::CreateResource()
 
     // slime
     {
-        /*enemySlime[0] = std::make_unique<EnemySlime>();
-        enemySlime[1] = std::make_unique<EnemySlime>();*/
-        /*for (int i = 0; i < ENEMY_MAX; i++) {
-            EnemyManager::Instance().GetEnemy(i).
+        //enemySlime[0] = std::make_unique<EnemySlime>();
+        //enemySlime[1] = std::make_unique<EnemySlime>();
 
-        }*/
+        //EnemyManager::Instance().Register(new EnemySlime);
+
+        DirectX::XMFLOAT3 enemySet[] = {
+            { 0,0,10 },
+            {5,0,15 },
+            {3,0,20 },
+            {6,0,25 },
+            {1,0,30 },
+            {0,0,35 },
+            {-2,0,40 },
+            {5,0,45 },
+            {3,0,50 },
+            {6,0,55 },
+            {1,0,60 },
+            {0,0,65 },
+            {-2,0,70 }
+        };
+
+#define ENEMY_MAX sizeof(enemySet)/sizeof(enemySet[0])
+
         for (int i = 0; i < ENEMY_MAX; i++) {
-            //EnemyManager::Instance().Register(new EnemySlime(enemySet[i],i));
-            new EnemySlime(&EnemyManager::Instance(), enemySet[i], i);
+            EnemyManager::Instance().Register(new EnemySlime(enemySet[i],i));
+
+
         }
     }
 
@@ -126,7 +128,7 @@ void SceneDemo::CreateResource()
 
     // item
     {
-        ItemManager::Instance().Register(new Book());
+        //ItemManager::Instance().Register(new Book());
     }
 
     // stage
@@ -179,21 +181,23 @@ void SceneDemo::Initialize()
 {
     Graphics& graphics = Graphics::Instance();
 
-    // enemy
-    {
-       /* enemySlime[0]->Initialize();
-        enemySlime[1]->Initialize();*/
-        EnemyManager::Instance().Initialize();
-    }
-
     // カメラ
     Camera::Instance().Initialize();
 
     // player
     PlayerManager::Instance().Initialize();
 
+    // enemy
+    {
+        //enemySlime[0]->Initialize();
+        //enemySlime[1]->Initialize();
+        /* enemySlime[0]->Initialize();
+         enemySlime[1]->Initialize();*/
+        EnemyManager::Instance().Initialize();
+    }
+
     // item
-    ItemManager::Instance().Initialize();
+    //ItemManager::Instance().Initialize();
 
     // stage
     stage->Initialize();
@@ -202,7 +206,7 @@ void SceneDemo::Initialize()
 void SceneDemo::Finalize()
 {
     // item
-    ItemManager::Instance().Finalize();
+    //ItemManager::Instance().Finalize();
 
     // player
     PlayerManager::Instance().Finalize();
@@ -214,7 +218,7 @@ void SceneDemo::Finalize()
 void SceneDemo::Begin()
 {
     // item
-    ItemManager::Instance().Begin();
+    //ItemManager::Instance().Begin();
 }
 
 // 更新
@@ -222,14 +226,14 @@ void SceneDemo::Update(const float& elapsedTime)
 {
     GamePad& gamePad = Input::Instance().GetGamePad();
 
-    if (gamePad.GetButtonDown() & GamePad::BTN_A)
-    {
-        //for (int i = 0; i < 5; ++i)
-        {
-            effect[0]->Play({ 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f });
-        }
-        //effect[0]->Play({ 0.0f, 0.0f, 0.0f }, { 10.0f,10.0f,10.0f });
-    }
+    //if (gamePad.GetButtonDown() & GamePad::BTN_A)
+    //{
+    //    //for (int i = 0; i < 5; ++i)
+    //    {
+    //        effect[0]->Play({ 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f });
+    //    }
+    //    //effect[0]->Play({ 0.0f, 0.0f, 0.0f }, { 10.0f,10.0f,10.0f });
+    //}
 
     // GltfModel
     {
@@ -252,7 +256,8 @@ void SceneDemo::Update(const float& elapsedTime)
 #endif // SPRITE
     }
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
+#if 0
     // Debug用カメラ
     if (gamePad.GetButtonDown() & GamePad::BTN_X)isDebugCamera = isDebugCamera ? false : true;
     if (isDebugCamera)
@@ -281,17 +286,16 @@ void SceneDemo::Update(const float& elapsedTime)
         Camera::Instance().Update();
     }
 
+    // player
+    PlayerManager::Instance().Update(elapsedTime);
+
     // slime
     {
-        /*enemySlime[0]->Update(elapsedTime);
-        enemySlime[1]->Update(elapsedTime);*/
+        //enemySlime[0]->Update(elapsedTime);
+        //enemySlime[1]->Update(elapsedTime);
+
         EnemyManager::Instance().Update(elapsedTime);
-        /*for (int i = 0; i < ENEMY_MAX; i++) {
-            DirectX::XMFLOAT3 enemy_pos = EnemyManager::Instance().GetEnemy(i)->GetTransform()->GetPosition();
-            if (enemy_pos.z <= 0) {
-                EnemyManager::Instance().Remove(EnemyManager::Instance().GetEnemy(i));
-            }
-        }*/
+
         //DirectX::XMFLOAT3 enemySlime0offset = enemySlime[0]->GetDebugSqhereOffset();
         //DirectX::XMFLOAT3 enemySlime1offset = enemySlime[1]->GetDebugSqhereOffset();
         //DirectX::XMFLOAT3 enemySlime0position = enemySlime[0]->GetTransform()->GetPosition();
@@ -314,11 +318,8 @@ void SceneDemo::Update(const float& elapsedTime)
         //}
     }
 
-    // player
-    PlayerManager::Instance().Update(elapsedTime);
-
     // item
-    ItemManager::Instance().Update(elapsedTime);
+    //ItemManager::Instance().Update(elapsedTime);
 
     // エフェクト更新処理
     EffectManager::Instance().Update(elapsedTime);
@@ -335,8 +336,10 @@ void SceneDemo::Render(const float& elapsedTime)
 {
     // scaleFactor
     //float enemyScaleFactor = 0.01f;
-    float enemyScaleFactor = 0.001f;
-    float playerScaleFactor = 0.01f;
+    //float playerScaleFactor = 0.01f;
+    constexpr float stageScaleFactor  = 1.0f;
+    constexpr float playerScaleFactor = 0.5f;
+    constexpr float enemyScaleFactor  = 0.001f;
 
     Graphics& graphics = Graphics::Instance();
 
@@ -399,11 +402,10 @@ void SceneDemo::Render(const float& elapsedTime)
 
             // SHADOW : 影つけたいモデルはここにRenderする
             {
-                PlayerManager::Instance().Render(elapsedTime, playerScaleFactor);
+                //PlayerManager::Instance().Render(elapsedTime, playerScaleFactor);
 
-                /*enemySlime[0]->Render(elapsedTime, enemyScaleFactor);
-                enemySlime[1]->Render(elapsedTime, enemyScaleFactor);*/
-                EnemyManager::Instance().Render(elapsedTime, enemyScaleFactor);
+                //enemySlime[0]->Render(elapsedTime, enemyScaleFactor);
+                //enemySlime[1]->Render(elapsedTime, enemyScaleFactor);
             }
 
             shadow.shadowMap->Deactivete(deviceContext);
@@ -454,8 +456,9 @@ void SceneDemo::Render(const float& elapsedTime)
 
     // slime
     {
-        /*enemySlime[0]->Render(elapsedTime, enemyScaleFactor);
-        enemySlime[1]->Render(elapsedTime, enemyScaleFactor);*/
+        //enemySlime[0]->Render(elapsedTime, enemyScaleFactor);
+        //enemySlime[1]->Render(elapsedTime, enemyScaleFactor);
+
         EnemyManager::Instance().Render(elapsedTime, enemyScaleFactor);
     }
 
@@ -466,12 +469,12 @@ void SceneDemo::Render(const float& elapsedTime)
 
     // item
     {
-        ItemManager::Instance().Render(0.01f);
+        //ItemManager::Instance().Render(0.01f);
     }
 
     // stage
     {
-       stage->Render(1.0f);
+        stage->Render(stageScaleFactor);
     }
 
     // 3Dエフェクト描画
@@ -515,10 +518,10 @@ void SceneDemo::DrawDebug()
         isDebugRender = (isDebugRender) ? false : true;
     }
 
-    if (ImGui::Button("create book"))
-    {
-        ItemManager::Instance().Register(new Book());
-    }
+    //if (ImGui::Button("create book"))
+    //{
+    //    ItemManager::Instance().Register(new Book());
+    //}
 
     // GltfModel
     {
@@ -545,9 +548,9 @@ void SceneDemo::DrawDebug()
 
     // slime
     {
-        /*enemySlime[0]->DrawDebug();
-        enemySlime[1]->DrawDebug();*/
-        EnemyManager::Instance().DrawDebug();
+        //EnemyManager::Instance().DrawDebug();
+        //enemySlime[0]->DrawDebug();
+        //enemySlime[1]->DrawDebug();
     }
 
     // player

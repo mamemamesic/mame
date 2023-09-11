@@ -31,6 +31,9 @@ public: // 取得・設定　関連
 public:
     std::unique_ptr<Model> model = nullptr;
 
+    float speed_     = 0.0f;
+    float lifeTimer_ = 0.0f;
+
 private:
     ProjectileManager* manager = nullptr;
 
@@ -44,4 +47,3 @@ public: // --- ImGui用 --- //
 private: // --- ImGui用 --- //
     std::string name = {};
 };
-

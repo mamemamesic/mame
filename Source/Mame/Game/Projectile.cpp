@@ -1,12 +1,19 @@
 #include "Projectile.h"
 #include "ProjectileManager.h"
 
+#include <memory>
+#include "../Graphics/Graphics.h"
+
 int Projectile::nameNum = 0;
 
 // コンストラクタ
 Projectile::Projectile(ProjectileManager* manager)
     :manager(manager)
 {
+    Graphics& graphics = Graphics::Instance();
+
+    model = std::make_unique<Model>(graphics.GetDevice(), "./Resources/Model/Projectile/sqhere.fbx");
+
     manager->Register(this);
 }
 

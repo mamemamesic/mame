@@ -295,6 +295,15 @@
     <ClCompile Include="Source\Mame\Graphics\DebugRenderer.cpp">
       <Filter>mamelib\Mame\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Mame\Game\ProjectileStraiteIcon.cpp">
+      <Filter>mamelib\Mame\Game\Item\ProjectileIcon</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Mame\Game\ProjectileIcon.cpp">
+      <Filter>mamelib\Mame\Game\Item\ProjectileIcon</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Mame\Game\ProjectileIconManager.cpp">
+      <Filter>mamelib\Mame\Game\Item\ProjectileIcon</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Mame\Scene\BaseScene.h">
@@ -500,6 +509,15 @@
     <ClInclude Include="Source\Mame\Graphics\DebugRenderer.h">
       <Filter>mamelib\Mame\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Mame\Game\ProjectileStraiteIcon.h">
+      <Filter>mamelib\Mame\Game\Item\ProjectileIcon</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Mame\Game\ProjectileIcon.h">
+      <Filter>mamelib\Mame\Game\Item\ProjectileIcon</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Mame\Game\ProjectileIconManager.h">
+      <Filter>mamelib\Mame\Game\Item\ProjectileIcon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Shader\fullscreen_quad.hlsli">
@@ -611,6 +629,9 @@
     </Filter>
     <Filter Include="mamelib\Mame\Game\Ability">
       <UniqueIdentifier>{40bacefb-4ce6-4a4f-b94d-f727f9fb1c34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mamelib\Mame\Game\Item\ProjectileIcon">
+      <UniqueIdentifier>{1dff0a7a-52c5-46f5-b36f-b31fc69fb912}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
