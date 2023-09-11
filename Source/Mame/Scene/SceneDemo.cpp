@@ -92,23 +92,27 @@ void SceneDemo::CreateResource()
     {
         /*enemySlime[0] = std::make_unique<EnemySlime>();
         enemySlime[1] = std::make_unique<EnemySlime>();*/
-        // ìGèoåªópç\ë¢ëÃ
-        struct EnemySet {
-            DirectX::XMFLOAT3 enemy_pos;
-        };
-
         DirectX::XMFLOAT3 enemySet[] = {
-            { 2,0,2 },
-            {5,0,4 },
-            {3,0,6 },
-            {6,0,8 },
-            {1,0,11 },
-            {0,0,16 },
-            {5,0,20 }
+            { 0,0,10 },
+            {5,0,15 },
+            {3,0,20 },
+            {6,0,25 },
+            {1,0,30 },
+            {0,0,35 },
+            {-2,0,40 },
+            {5,0,45 },
+            {3,0,50 },
+            {6,0,55 },
+            {1,0,60 },
+            {0,0,65 },
+            {-2,0,70 }
         };
+#define ENEMY_MAX sizeof(enemySet)/sizeof(enemySet[0])
+        
+        for (int i = 0; i < ENEMY_MAX; i++) {
+            EnemyManager::Instance().Register(new EnemySlime(enemySet[i],i));
 
-        for (int i = 0; i < 30; i++) {
-            EnemyManager::Instance().Register(new EnemySlime(enemySet[i]));
+
         }
     }
 

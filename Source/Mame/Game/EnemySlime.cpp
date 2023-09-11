@@ -2,7 +2,7 @@
 #include "../Graphics/Graphics.h"
 
 // コンストラクタ
-EnemySlime::EnemySlime(DirectX::XMFLOAT3 enemy_set)
+EnemySlime::EnemySlime(DirectX::XMFLOAT3 enemy_set,int count)
 {
     Graphics& graphics = Graphics::Instance();
     
@@ -15,6 +15,7 @@ EnemySlime::EnemySlime(DirectX::XMFLOAT3 enemy_set)
     DirectX::XMFLOAT3 pos = GetTransform()->GetPosition();
     pos = enemy_set;
 
+    enemy_count = count;
 
     GetTransform()->SetPosition(pos);
 
@@ -54,55 +55,58 @@ void EnemySlime::Update(const float& elapsedTime)
 
     Character::UpdateAnimation(elapsedTime);
 
-    time++;
-    
-
-
-
-    DirectX::XMFLOAT3 player_pos = PlayerManager::Instance().GetPlayer()->GetTransform()->GetPosition();
+    //DirectX::XMFLOAT3 player_pos = PlayerManager::Instance().GetPlayer()->GetTransform()->GetPosition();
     DirectX::XMFLOAT3 pos = GetTransform()->GetPosition();
     
-    if (time >= count)
-    {
-
-        //EnemyManager::Instance().Register(new EnemySlime());
-
-        
-        count += 3;
-    }
-
-    DirectX::XMFLOAT3 vecPlayer = { player_pos.x - pos.x,player_pos.y - pos.y,player_pos.z - pos.z };
+    /*DirectX::XMFLOAT3 vecPlayer = { player_pos.x - pos.x,player_pos.y - pos.y,player_pos.z - pos.z };
     dist = sqrtf(vecPlayer.x * vecPlayer.x + vecPlayer.y * vecPlayer.y + vecPlayer.z * vecPlayer.z);
-    pos_1 = vecPlayer;
+    pos_1 = vecPlayer;*/
     
-    
-    //time += elapsedTime;
-    switch (flg) {
-    case false:
+    time++;
+    float elapsedFream = 60.0f * elapsedTime;
+    //雑魚敵の設定
+    switch (state) {
+    case 0:
         /*speed.x = elapsedTime * 0.01f * vecPlayer.x / dist;
         speed.y = elapsedTime * 0.01f * vecPlayer.y / dist;
         speed.z = elapsedTime * 0.01f * vecPlayer.z / dist;*/
-        speed.x = 0;
-        speed.y = 0;
-        speed.z = -0.01f;
-        flg=true;
-    case true:
-     /*   if (time > 5) {
-            flg = false;
-            time = 0;
-            break;
-        }*/
-        pos.x += speed.x;
-        pos.y += speed.y;
+        //speed.z = -0.001f*elapsedFream;
+        speed.z = this->speed.z * elapsedTime;
+        state++;
+        break;
+    case 1:
         pos.z += speed.z;
+        if (enemy_count == 6)   //ボスの設定に移動
+        {
+            if (pos.z <= 5)
+            {
+                speed.z = 0;
+                pos.z += speed.z;
+                state++;
+                break;
+            }
+        }
+        break;
+    case 2: //ボスの設定
+        speed.x = 0.01;
+        state = 4;
+        break;
+    case 3:
+        speed.x = -0.01;
+        state = 4;
+        break;
+    case 4:
+        pos.x += speed.x;
+        if (pos.x > 4)state = 3;
+        if (pos.x < -4)state = 2;
+
         break;
     }
 
-    PlayerManager::Instance().GetPlayer()->GetTransform()->SetPosition(player_pos);
+
+
+    //PlayerManager::Instance().GetPlayer()->GetTransform()->SetPosition(player_pos);
     GetTransform()->SetPosition(pos);
-
-
-
 }
 
 // Updateの後に呼ばれる
