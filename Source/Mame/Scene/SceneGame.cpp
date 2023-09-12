@@ -225,7 +225,7 @@ void SceneGame::CreateResource()
         playerManager.GetPlayer() = std::make_unique<Player>();
 
         // “G¶¬
-        enemyManager.Register(new EnemySlime());
+        //enemyManager.Register(new EnemySlime());
 
         stage_ = std::make_unique<Stage>();
     }

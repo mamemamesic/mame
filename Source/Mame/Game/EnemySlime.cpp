@@ -1,8 +1,11 @@
 #include "EnemySlime.h"
+#include "EnemyManager.h"
 #include "../Graphics/Graphics.h"
 
+
 // ƒRƒ“ƒXƒgƒ‰ƒNƒ^
-EnemySlime::EnemySlime(DirectX::XMFLOAT3 enemy_set,int count)
+EnemySlime::EnemySlime(EnemyManager* manager, DirectX::XMFLOAT3 enemy_set,int count)
+    :Enemy(manager)
 {
     Graphics& graphics = Graphics::Instance();
 
@@ -16,7 +19,7 @@ EnemySlime::EnemySlime(DirectX::XMFLOAT3 enemy_set,int count)
     pos = enemy_set;
 
     enemy_count = count;
-
+   
     GetTransform()->SetPosition(pos);
 
     // ImGui–¼‘OÝ’è
@@ -32,8 +35,8 @@ EnemySlime::~EnemySlime()
 void EnemySlime::Initialize()
 {
     debugSqhereOffset.y += offsetY_;
-    GetTransform()->SetPosition(DirectX::XMFLOAT3(0, 0, 20));
-
+    //GetTransform()->SetPosition(DirectX::XMFLOAT3(0, 0, 20));
+   
     Enemy::Initialize();
 
     Character::PlayAnimation(0, true);
@@ -55,7 +58,7 @@ void EnemySlime::Update(const float& elapsedTime)
     Enemy::Update(elapsedTime);
 
     Character::UpdateAnimation(elapsedTime);
-
+    
     //DirectX::XMFLOAT3 player_pos = PlayerManager::Instance().GetPlayer()->GetTransform()->GetPosition();
     DirectX::XMFLOAT3 pos = GetTransform()->GetPosition();
 
@@ -63,8 +66,7 @@ void EnemySlime::Update(const float& elapsedTime)
     dist = sqrtf(vecPlayer.x * vecPlayer.x + vecPlayer.y * vecPlayer.y + vecPlayer.z * vecPlayer.z);
     pos_1 = vecPlayer;*/
 
-    time++;
-    float elapsedFream = 60.0f * elapsedTime;
+    
     //ŽG‹›“G‚ÌÝ’è
     switch (state) {
     case 0:
@@ -72,7 +74,7 @@ void EnemySlime::Update(const float& elapsedTime)
         speed.y = elapsedTime * 0.01f * vecPlayer.y / dist;
         speed.z = elapsedTime * 0.01f * vecPlayer.z / dist;*/
         //speed.z = -0.001f*elapsedFream;
-        speed.z = this->speed.z * elapsedTime;
+        speed.z = this->speed.z;
         state++;
         break;
     case 1:
@@ -98,10 +100,15 @@ void EnemySlime::Update(const float& elapsedTime)
         break;
     case 4:
         pos.x += speed.x;
-        if (pos.x > 4)state = 3;
-        if (pos.x < -4)state = 2;
+        if (pos.x > 2)state = 3;
+        if (pos.x < -2)state = 2;
 
         break;
+    }
+
+    if (pos.z <= -10)
+    {
+        Destroy();  //”jŠü
     }
 
     //PlayerManager::Instance().GetPlayer()->GetTransform()->SetPosition(player_pos);
@@ -130,7 +137,6 @@ void EnemySlime::DrawDebug()
         float range = GetRange();
         ImGui::DragFloat("range", &range);
         ImGui::DragFloat("dist", &dist);
-        ImGui::DragFloat("time", &time);
         ImGui::DragFloat("speed_x", &speed.x);
         ImGui::DragFloat("speed_y", &speed.y);
         ImGui::DragFloat("speed_z", &speed.z);

@@ -1,6 +1,5 @@
 #pragma once
 #include "Enemy.h"
-//#include "PlayerManager.h"
 
 class EnemySlime : public Enemy
 {
@@ -21,9 +20,10 @@ private:
     float offsetY_ = 0.25f;
     float dist;
     DirectX::XMFLOAT3 pos_1;
-    DirectX::XMFLOAT3 speed = { 0,0,-0.05f };
-    float time;
+    DirectX::XMFLOAT3 speed = { 0,0,-0.02f };
     int enemy_count;
     int state = 0;
+    DirectX::XMFLOAT3 enemySet = { 0,0,10 };
+   
 };
 

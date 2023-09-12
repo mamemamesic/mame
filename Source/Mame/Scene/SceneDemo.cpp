@@ -19,11 +19,41 @@
 
 bool SceneDemo::isDebugRender = true;
 
+
+#include <random>
+//乱数　変数
+constexpr int FLOAT_MIN = -2;
+constexpr float FLOAT_MAX = 2;
+float x;
+//敵の初期位置
+DirectX::XMFLOAT3 enemySet[] = {
+{ 0,0,10 },
+{2,0,15 },
+{-2,0,20 },
+{1,0,25 },
+{2,0,30 },
+{-1,0,35 },
+{x,0,40 },
+{x,0,45 },
+{x,0,50 },
+{x,0,55 },
+{x,0,60 },
+{x,0,65 },
+{x,0,70 },
+{x,0,70 },
+{x,0,70 },
+{x,0,70 },
+{x,0,70 },
+{x,0,70 }
+};
+
+#define ENEMY_MAX sizeof(enemySet)/sizeof(enemySet[0])
+
 // リソース生成
 void SceneDemo::CreateResource()
 {
     Graphics& graphics = Graphics::Instance();
-
+    
     SetStates();
 
     // GltfModel
@@ -88,7 +118,7 @@ void SceneDemo::CreateResource()
     }
 
 
-
+    
     // slime
     {
         //enemySlime[0] = std::make_unique<EnemySlime>();
@@ -96,29 +126,12 @@ void SceneDemo::CreateResource()
 
         //EnemyManager::Instance().Register(new EnemySlime);
 
-        DirectX::XMFLOAT3 enemySet[] = {
-            { 0,0,10 },
-            {5,0,15 },
-            {3,0,20 },
-            {6,0,25 },
-            {1,0,30 },
-            {0,0,35 },
-            {-2,0,40 },
-            {5,0,45 },
-            {3,0,50 },
-            {6,0,55 },
-            {1,0,60 },
-            {0,0,65 },
-            {-2,0,70 }
-        };
-
-#define ENEMY_MAX sizeof(enemySet)/sizeof(enemySet[0])
-
-        for (int i = 0; i < ENEMY_MAX; i++) {
-            EnemyManager::Instance().Register(new EnemySlime(enemySet[i],i));
-
-
+        for (int i = 0; i < 6; i++) {
+           new EnemySlime(&EnemyManager::Instance(),enemySet[i],i);
+           enemy_count++;
         }
+        
+        //new EnemySlime(&EnemyManager::Instance(), enemySet, 0);
     }
 
     // player
@@ -293,8 +306,20 @@ void SceneDemo::Update(const float& elapsedTime)
     {
         //enemySlime[0]->Update(elapsedTime);
         //enemySlime[1]->Update(elapsedTime);
-
         EnemyManager::Instance().Update(elapsedTime);
+        
+        time++;
+        std::random_device rd;
+        std::default_random_engine eng(rd());
+        std::uniform_real_distribution<float> distr(FLOAT_MIN, FLOAT_MAX);
+        x = distr(eng);
+       
+        if (time > 400 && ENEMY_MAX > enemy_count) {
+            enemySet[enemy_count].x = x;
+            new EnemySlime(&EnemyManager::Instance(), enemySet[enemy_count], enemy_count);
+            time = 0;
+            enemy_count++;
+        }
 
         //DirectX::XMFLOAT3 enemySlime0offset = enemySlime[0]->GetDebugSqhereOffset();
         //DirectX::XMFLOAT3 enemySlime1offset = enemySlime[1]->GetDebugSqhereOffset();
@@ -517,7 +542,7 @@ void SceneDemo::DrawDebug()
     {
         isDebugRender = (isDebugRender) ? false : true;
     }
-
+    
     //if (ImGui::Button("create book"))
     //{
     //    ItemManager::Instance().Register(new Book());
@@ -548,7 +573,7 @@ void SceneDemo::DrawDebug()
 
     // slime
     {
-        //EnemyManager::Instance().DrawDebug();
+        EnemyManager::Instance().DrawDebug();
         //enemySlime[0]->DrawDebug();
         //enemySlime[1]->DrawDebug();
     }
