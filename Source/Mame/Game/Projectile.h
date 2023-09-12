@@ -38,7 +38,7 @@ public:
 private:
     ProjectileManager* manager = nullptr;
 
-    float radius_ = 0.15f;
+    float radius_ = 0.1f;
 
 public: // --- ImGui—p --- //
     const char* GetName() const { return name.c_str(); }

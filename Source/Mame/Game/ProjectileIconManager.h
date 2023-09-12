@@ -52,6 +52,9 @@ public:
 
     int projectileIconRenderLimit_ = 25;
 
+    DirectX::XMFLOAT3 projStraitePosition_ = {};
+    DirectX::XMFLOAT3 projStraiteForward_  = {};
+
 private:
     std::vector<ProjectileIcon*>  projectileIcons_ = {};
     std::set<ProjectileIcon*>     removes_ = {};

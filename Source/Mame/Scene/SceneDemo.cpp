@@ -339,7 +339,7 @@ void SceneDemo::Render(const float& elapsedTime)
     //float playerScaleFactor = 0.01f;
     constexpr float stageScaleFactor  = 1.0f;
     constexpr float playerScaleFactor = 0.5f;
-    constexpr float enemyScaleFactor  = 0.001f;
+    constexpr float enemyScaleFactor  = 0.5f;
 
     Graphics& graphics = Graphics::Instance();
 

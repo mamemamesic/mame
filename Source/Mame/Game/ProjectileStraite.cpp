@@ -100,7 +100,8 @@ void ProjectileStraite::CollisionProjectileVsEnemies()
                 const int enemyProjIconCount = enemy->projectileIconManager_.GetProjectileIconCount();
                 for (int j = 0; j < enemyProjIconCount; ++j)
                 {
-                    new ProjectileStraiteIcon(&player->projectileIconManager_);
+                    ProjectileStraiteIcon* projStraiteIcon = new ProjectileStraiteIcon(&player->projectileIconManager_);
+                    projStraiteIcon->GetTransform()->SetPosition(enemyPos);
                 }
 
                 enemyManager.Remove(enemy);

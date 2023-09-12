@@ -8,9 +8,13 @@
 
 #include "AbilityManager.h"
 #include "EnemyManager.h"
-#include "Collision.h"
-#include "ProjectileStraite.h"
+
 #include "ProjectileStraiteIcon.h"
+#include "EnemyProjectileStraiteIcon.h"
+#include "ProjectileStraite.h"
+
+#include "Collision.h"
+
 
 // コンストラクタ
 Player::Player()
@@ -38,6 +42,7 @@ void Player::Initialize()
 {
     GetTransform()->SetPosition(DirectX::XMFLOAT3(0, 0.25f, 0));
     debugSqhereOffset.y += offsetY_;
+    model->color = DirectX::XMFLOAT4(0.5f, 0.5f, 1.0f, 1.0f);
 
     Character::Initialize();
 
@@ -93,6 +98,7 @@ void Player::Update(const float& elapsedTime)
     }
 
     // 回転（確認用）
+#if 0
     {
         const float aRx = gamePad.GetAxisRX();
         const float aRy = gamePad.GetAxisRY();
@@ -114,6 +120,7 @@ void Player::Update(const float& elapsedTime)
         // 回転値更新
         transform->SetRotation(rotation);
     }
+#endif
 
     //// 近接攻撃入力処理
     //if (InputCloseRangeAttack() == true) CreateCloseRangeAttackSphere();
@@ -121,22 +128,31 @@ void Player::Update(const float& elapsedTime)
     //// 近接攻撃更新処理
     //UpdateCloseRangeAttack(elapsedTime);
 
-#ifdef _DEBUG
-    // 弾丸アイコン追加
-    if (gamePad.GetButtonDown() & GamePad::BTN_A)
-    {
-        new ProjectileStraiteIcon(&projectileIconManager_);
-    }
-#endif
+
 
     // 弾丸アイコン更新処理
     {
+#ifdef _DEBUG
+        // 弾丸アイコン追加
+        if (gamePad.GetButtonDown() & GamePad::BTN_A)
+        {
+            //EnemyManager& enemyManager = EnemyManager::Instance();
+            //new EnemyProjectileStraiteIcon(&enemyManager.GetEnemy(0)->projectileIconManager_);
+
+            new ProjectileStraiteIcon(&projectileIconManager_);
+        }
+#endif
+
         // 位置設定
         {
             int   pileUpCounter   = 0;       // 重ねた数をカウントする
             int   columnCounter   = 0;       // 列の数をカウントする
             float shiftLeft       = 0.0f;    // すべての列を等しく左にずらす
             float shiftRight      = 0.0f;    // それぞれの列を列数に比例して右にずらす
+
+            const float moveSpeedX = 3.0f;
+            const float moveSpeedY = 2.75f;
+            const float moveSpeedZ = 30.0f;
 
 #ifdef USE_IMGUI
             int projectileIconCount = projectileIconManager_.GetProjectileIconCount();
@@ -149,7 +165,7 @@ void Player::Update(const float& elapsedTime)
                 if (i >= projectileIconRenderLimit) break;
 
                 ProjectileIcon* projectileIcon = projectileIconManager_.GetProjectileIcon(i);
-                Transform* projectileIconTransform = projectileIcon->GetTransform();
+                Transform* projIconTransform = projectileIcon->GetTransform();
 
                 const XMFLOAT3 plPosition = GetTransform()->GetPosition();
                 const float    plTop = (plPosition.y + 0.4f);
@@ -157,36 +173,94 @@ void Player::Update(const float& elapsedTime)
                 constexpr float addPositionY = 0.2f;
                 constexpr float addPositionX = (-0.1f);
 
-                // Y位置設定
-                projectileIconTransform->SetPositionY(
-                    plTop + (static_cast<float>(pileUpCounter) * addPositionY)
-                );
+                // Move Y
+                {
+                    const float targetPosY = {
+                        plTop + (static_cast<float>(pileUpCounter) * addPositionY)
+                    };
+                    if (projIconTransform->GetPosition().y > targetPosY)
+                    {
+                        projIconTransform->AddPositionY(-moveSpeedY * elapsedTime);
+                        if (projIconTransform->GetPosition().y < targetPosY)
+                        {
+                            projIconTransform->SetPositionY(targetPosY);
+                        }
+                    }
+                    if (projIconTransform->GetPosition().y < targetPosY)
+                    {
+                        projIconTransform->AddPositionY(moveSpeedY * elapsedTime);
+                        if (projIconTransform->GetPosition().y > targetPosY)
+                        {
+                            projIconTransform->SetPositionY(targetPosY);
+                        }
+                    }
+                }
 
                 const float columnCount = static_cast<float>(projectileIconManager_.columnCounter_);
 
-#if 1 // 列がずれるタイミングの違い確認用
+#if 0 // 列がずれるタイミングの違い確認用
                 if (projectileIconCount % 5 != 0)
 #endif
                 {
-                    shiftLeft = (columnCount * addPositionX);
+                    // 列を全体的に左にずらしてから個々の列を列数に比例して右にずらしていく
+                    shiftLeft  = (columnCount * addPositionX);
                     shiftRight = (static_cast<float>(columnCounter) * 0.1f);
 
                     projectileIcon->shitLeft_  = shiftLeft;
                     projectileIcon->shitRight_ = shiftRight;
                 }
 
-                // 列を全体的に左にずらしてから個々の列を列数に比例して右にずらしていく
-                projectileIconTransform->SetPositionX(
-                    plPosition.x + projectileIcon->offsetX_ +
-                    projectileIcon->shitLeft_ + projectileIcon->shitRight_
-                );
+                // Move X
+                {
+                    const float targetPosX = {
+                        plPosition.x + projectileIcon->offsetX_ +
+                        projectileIcon->shitLeft_ + projectileIcon->shitRight_
+                    };
+                    if (projIconTransform->GetPosition().x > targetPosX)
+                    {
+                        projIconTransform->AddPositionX(-moveSpeedX * elapsedTime);
+                        if (projIconTransform->GetPosition().x < targetPosX)
+                        {
+                            projIconTransform->SetPositionX(targetPosX);
+                        }
+                    }
+                    if (projIconTransform->GetPosition().x < targetPosX)
+                    {
+                        projIconTransform->AddPositionX(moveSpeedX * elapsedTime);
+                        if (projIconTransform->GetPosition().x > targetPosX)
+                        {
+                            projIconTransform->SetPositionX(targetPosX);
+                        }
+                    }
+                }
+
+                // Move Z
+                {
+                    const float targetPosZ = plPosition.z;
+                    if (projIconTransform->GetPosition().z > targetPosZ)
+                    {
+                        projIconTransform->AddPositionZ(-moveSpeedZ * elapsedTime);
+                        if (projIconTransform->GetPosition().z < targetPosZ)
+                        {
+                            projIconTransform->SetPositionZ(targetPosZ);
+                        }
+                    }
+                    if (projIconTransform->GetPosition().z < targetPosZ)
+                    {
+                        projIconTransform->AddPositionZ(moveSpeedZ * elapsedTime);
+                        if (projIconTransform->GetPosition().z > targetPosZ)
+                        {
+                            projIconTransform->SetPositionZ(targetPosZ);
+                        }
+                    }
+                }
 
                 ++pileUpCounter; // 積み上げカウント加算
 
                 // 一定数積んだら列を分けて１から積み上げ直す
                 if (pileUpCounter >= projectileIconManager_.PILE_UP_COUNT_MAX_)
                 {
-                    pileUpCounter = 0;    // 積み上げカウントをリセット
+                    pileUpCounter = 0;      // 積み上げカウントをリセット
                     ++columnCounter;        // 列カウントを増やす
                 }
 

@@ -2,7 +2,7 @@
 
 #include "../Graphics/Graphics.h"
 #include "EnemyManager.h"
-#include "ProjectileStraiteIcon.h"
+#include "EnemyProjectileStraiteIcon.h"
 
 // コンストラクタ
 EnemySlime::EnemySlime(DirectX::XMFLOAT3 enemy_set,int count)
@@ -11,9 +11,10 @@ EnemySlime::EnemySlime(DirectX::XMFLOAT3 enemy_set,int count)
 
     model = std::make_unique<Model>(graphics.GetDevice(),
         //"./Resources/Model/sanaModel/mameoall.fbx");
-        "./Resources/Model/testModel/plantune.fbx");
+        //"./Resources/Model/testModel/plantune.fbx");
         //"./Resources/Model/testModel/latha.fbx");
         //"./Resources/Model/Collision/sphere.fbx");
+        "./Resources/Model/sikaku.fbx");
 
     DirectX::XMFLOAT3 pos = GetTransform()->GetPosition();
     pos = enemy_set;
@@ -34,14 +35,19 @@ EnemySlime::~EnemySlime()
 // 初期化
 void EnemySlime::Initialize()
 {
+    using DirectX::XMConvertToRadians;
+
     debugSqhereOffset.y += offsetY_;
-    GetTransform()->SetPosition(DirectX::XMFLOAT3(0, 0, 20));
+    GetTransform()->SetPosition(DirectX::XMFLOAT3(0, 0.25f, 20));
+    GetTransform()->SetRotation(DirectX::XMFLOAT4(0, XMConvertToRadians(180.0f), 0, 0));
+    model->color = DirectX::XMFLOAT4(1.0f, 0.25f, 0.25f, 1.0f);
 
     Enemy::Initialize();
 
     Character::PlayAnimation(0, true);
 
-    new ProjectileStraiteIcon(&projectileIconManager_);
+    for (int i = 0; i < 19; ++i) new EnemyProjectileStraiteIcon(&projectileIconManager_);
+    //new EnemyProjectileStraiteIcon(&projectileIconManager_);
 
     projectileIconManager_.Initialize();
 }
@@ -99,11 +105,11 @@ void EnemySlime::Update(const float& elapsedTime)
         }
         break;
     case 2: //ボスの設定
-        speed.x = 0.01f;
+        speed.x = 0.01f * elapsedTime;
         state = 4;
         break;
     case 3:
-        speed.x = -0.01f;
+        speed.x = -0.01f * elapsedTime;
         state = 4;
         break;
     case 4:
@@ -140,8 +146,7 @@ void EnemySlime::Update(const float& elapsedTime)
                 Transform* projectileIconTransform = projectileIcon->GetTransform();
 
                 const XMFLOAT3& parentPosition = GetTransform()->GetPosition();
-                //const float     parentTop = (parentPosition.y + 0.4f);
-                const float     parentTop = (parentPosition.y + 1.0f);
+                const float     parentTop = (parentPosition.y + 0.4f);
 
                 constexpr float addPositionY = 0.2f;
                 constexpr float addPositionX = (-0.1f);
@@ -153,7 +158,7 @@ void EnemySlime::Update(const float& elapsedTime)
 
                 const float columnCount = static_cast<float>(projectileIconManager_.columnCounter_);
 
-#if 1 // 列がずれるタイミングの違い確認用
+#if 0 // 列がずれるタイミングの違い確認用
                 if (projectileIconCount % 5 != 0)
 #endif
                 {
@@ -185,6 +190,10 @@ void EnemySlime::Update(const float& elapsedTime)
             }
         }
 
+        const XMFLOAT3& position = GetTransform()->GetPosition();
+        const XMFLOAT3& forward  = GetTransform()->CalcForward();
+        projectileIconManager_.projStraitePosition_ = position;
+        projectileIconManager_.projStraiteForward_ = forward;
         projectileIconManager_.Update(elapsedTime);
     }
 }

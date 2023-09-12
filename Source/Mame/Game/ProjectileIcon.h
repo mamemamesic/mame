@@ -41,10 +41,11 @@ public:
     float setSpeed_     = 20.0f;    // íeä€Ç…ê›íË
 
 protected:
+    ProjectileIconManager* manager_             = nullptr;
+
     float launchTimer_ = 0.0f;
 
 private:
-    ProjectileIconManager* manager_             = nullptr;
 
     float radius_      = 0.5f;
 

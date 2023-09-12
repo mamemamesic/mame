@@ -212,6 +212,8 @@
     <ClCompile Include="Source\Mame\Game\demoStateDerived.cpp" />
     <ClCompile Include="Source\Mame\Game\Enemy.cpp" />
     <ClCompile Include="Source\Mame\Game\EnemyManager.cpp" />
+    <ClCompile Include="Source\Mame\Game\EnemyProjectileStraite.cpp" />
+    <ClCompile Include="Source\Mame\Game\EnemyProjectileStraiteIcon.cpp" />
     <ClCompile Include="Source\Mame\Game\EnemySlime.cpp" />
     <ClCompile Include="Source\Mame\Game\Item.cpp" />
     <ClCompile Include="Source\Mame\Game\ItemManager.cpp" />
@@ -279,6 +281,8 @@
     <ClInclude Include="Source\Mame\Game\demoStateDerived.h" />
     <ClInclude Include="Source\Mame\Game\Enemy.h" />
     <ClInclude Include="Source\Mame\Game\EnemyManager.h" />
+    <ClInclude Include="Source\Mame\Game\EnemyProjectileStraite.h" />
+    <ClInclude Include="Source\Mame\Game\EnemyProjectileStraiteIcon.h" />
     <ClInclude Include="Source\Mame\Game\EnemySlime.h" />
     <ClInclude Include="Source\Mame\Game\Item.h" />
     <ClInclude Include="Source\Mame\Game\ItemManager.h" />
@@ -351,6 +355,8 @@
     <FxCompile Include="Source\Shader\DebugPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="Source\Shader\DebugVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>

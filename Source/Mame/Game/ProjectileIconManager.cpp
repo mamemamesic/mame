@@ -42,9 +42,13 @@ void ProjectileIconManager::Begin()
 void ProjectileIconManager::Update(const float& elapsedTime)
 {
     // çXêVèàóù
-    for (ProjectileIcon*& projectile : projectileIcons_)
+    //for (ProjectileIcon* projectileIcon : projectileIcons_)
+    //{
+    //    projectileIcon->Update(elapsedTime);
+    //}
+    for (int i = 0; i < GetProjectileIconCount(); ++i)
     {
-        projectile->Update(elapsedTime);
+        GetProjectileIcon(i)->Update(elapsedTime);
     }
 
     // îjä¸èàóù
@@ -137,6 +141,9 @@ void ProjectileIconManager::Register(ProjectileIcon* projectileIcon)
         if (colorChangeProjectileIconIndex_ >= projectileIconRenderLimit_)
         {
             colorChangeProjectileIconIndex_ = 0;
+
+            AddProjectileSpeedAll(); // íeä€ë¨ìxè„è∏
+
             if (colorTableIndex_ < (ColorTableLabel::IndexMax - 1)) ++colorTableIndex_;
         }
     }

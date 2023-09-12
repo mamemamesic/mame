@@ -304,6 +304,12 @@
     <ClCompile Include="Source\Mame\Game\ProjectileIconManager.cpp">
       <Filter>mamelib\Mame\Game\Item\ProjectileIcon</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Mame\Game\EnemyProjectileStraiteIcon.cpp">
+      <Filter>mamelib\Mame\Game\Item\ProjectileIcon</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Mame\Game\EnemyProjectileStraite.cpp">
+      <Filter>mamelib\Mame\Game\Item\Projectile</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Mame\Scene\BaseScene.h">
@@ -517,6 +523,12 @@
     </ClInclude>
     <ClInclude Include="Source\Mame\Game\ProjectileIconManager.h">
       <Filter>mamelib\Mame\Game\Item\ProjectileIcon</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Mame\Game\EnemyProjectileStraiteIcon.h">
+      <Filter>mamelib\Mame\Game\Item\ProjectileIcon</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Mame\Game\EnemyProjectileStraite.h">
+      <Filter>mamelib\Mame\Game\Item\Projectile</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
