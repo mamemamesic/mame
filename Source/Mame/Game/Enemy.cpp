@@ -1,4 +1,6 @@
 #include "Enemy.h"
+#include "EnemyManager.h"
+
 
 void Enemy::Initialize()
 {

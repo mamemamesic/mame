@@ -15,9 +15,41 @@
 #include "../Game/ItemManager.h"
 #include "../Game/Book.h"
 #include "../Game/ProjectileManager.h"
+#include "../Game/EnemyProjectileStraiteIcon.h"
 #include "../Game/EnemyManager.h"
 
 bool SceneDemo::isDebugRender = true;
+
+#include <random>
+
+//乱数　変数
+constexpr int FLOAT_MIN = -2;
+constexpr float FLOAT_MAX = 2;
+float x;
+
+//敵の初期位置
+DirectX::XMFLOAT3 enemySet[] = {
+{ 0,0,10 },
+{2,0,15 },
+{-2,0,20 },
+{1,0,25 },
+{2,0,30 },
+{-1,0,35 },
+{x,0,40 },
+{x,0,45 },
+{x,0,50 },
+{x,0,55 },
+{x,0,60 },
+{x,0,65 },
+{x,0,70 },
+{x,0,70 },
+{x,0,70 },
+{x,0,70 },
+{x,0,70 },
+{x,0,70 }
+};
+
+#define ENEMY_MAX sizeof(enemySet)/sizeof(enemySet[0])
 
 // リソース生成
 void SceneDemo::CreateResource()
@@ -91,34 +123,7 @@ void SceneDemo::CreateResource()
 
     // slime
     {
-        //enemySlime[0] = std::make_unique<EnemySlime>();
-        //enemySlime[1] = std::make_unique<EnemySlime>();
 
-        //EnemyManager::Instance().Register(new EnemySlime);
-
-        DirectX::XMFLOAT3 enemySet[] = {
-            { 0,0,10 },
-            //{5,0,15 },
-            //{3,0,20 },
-            //{6,0,25 },
-            //{1,0,30 },
-            //{0,0,35 },
-            //{-2,0,40 },
-            //{5,0,45 },
-            //{3,0,50 },
-            //{6,0,55 },
-            //{1,0,60 },
-            //{0,0,65 },
-            //{-2,0,70 }
-        };
-
-#define ENEMY_MAX sizeof(enemySet)/sizeof(enemySet[0])
-
-        for (int i = 0; i < ENEMY_MAX; i++) {
-            EnemyManager::Instance().Register(new EnemySlime(enemySet[i],i));
-
-
-        }
     }
 
     // player
@@ -291,31 +296,53 @@ void SceneDemo::Update(const float& elapsedTime)
 
     // slime
     {
-        //enemySlime[0]->Update(elapsedTime);
-        //enemySlime[1]->Update(elapsedTime);
+        using EnemyType = EnemyManager::EnemyType;
+        using EnemySet  = EnemyManager::EnemySet;
+
+        EnemyManager&   enemyManager = EnemyManager::Instance();
+        const EnemySet* enemySets    = enemyManager.enemySets_;
+        int&            index        = enemyManager.currentEnemySetsIndex_; // 値を変えるので参照変数
+
+        // 配列の要素数が最大要素数より小さくてタイマーが生成時間を過ぎたら敵を生成
+        enemyManager.timer_ += elapsedTime;
+        if ( (index < enemyManager.ENEMY_SETS_INDEX_COUNT_) &&
+             (enemyManager.timer_ >= enemySets[index].spawnTime_) )
+        {
+            EnemySlime* enemySlime = nullptr;
+
+            // タイプ毎に生成する敵の種類を設定
+            switch (enemySets[index].enemyType_)
+            {
+            case EnemyType::Normal:
+                enemySlime = new EnemySlime();
+                break;
+            case EnemyType::Boss:
+                //enemySlime = new EnemyBoss();
+                break;
+            }
+
+            // 生成位置設定
+            enemySlime->GetTransform()->SetPosition(enemySets[index].spawnPosition_);
+
+            // 弾丸アイコンを指定数生成
+            const int spawnProjIconCount = enemySets[index].spawnProjIconCount_;
+            for (int i = 0; (i < spawnProjIconCount); ++i)
+            {
+                new EnemyProjectileStraiteIcon(&enemySlime->projectileIconManager_); // 警告は認知
+            }
+
+            enemyManager.Register(enemySlime); // マネージャーに登録
+
+            ++index; // 次の敵配置に移行
+        }
 
         EnemyManager::Instance().Update(elapsedTime);
 
-        //DirectX::XMFLOAT3 enemySlime0offset = enemySlime[0]->GetDebugSqhereOffset();
-        //DirectX::XMFLOAT3 enemySlime1offset = enemySlime[1]->GetDebugSqhereOffset();
-        //DirectX::XMFLOAT3 enemySlime0position = enemySlime[0]->GetTransform()->GetPosition();
-        //DirectX::XMFLOAT3 enemySlime1position = enemySlime[1]->GetTransform()->GetPosition();
-        //enemySlime0position = { enemySlime0position.x + enemySlime0offset.x, enemySlime0position.y + enemySlime0offset.y, enemySlime0position.z + enemySlime0offset.z };
-        //enemySlime1position = { enemySlime1position.x + enemySlime1offset.x, enemySlime1position.y + enemySlime1offset.y, enemySlime1position.z + enemySlime1offset.z };
-
-        //DirectX::XMFLOAT3 outPosition;
-        //if (Collision::IntersectSphereVsSphere(
-        //    enemySlime[0]->GetTransform()->GetPosition(),
-        //    //enemySlime0position,
-        //    enemySlime[0]->GetRange(),
-        //    enemySlime[1]->GetTransform()->GetPosition(),
-        //    //enemySlime1position,
-        //    enemySlime[1]->GetRange(),
-        //    &outPosition
-        //))
-        //{
-        //    enemySlime[1]->GetTransform()->SetPosition(outPosition);
-        //}
+        //time++;
+        //std::random_device rd;
+        //std::default_random_engine eng(rd());
+        //std::uniform_real_distribution<float> distr(FLOAT_MIN, FLOAT_MAX);
+        //x = distr(eng);
     }
 
     // item
@@ -559,7 +586,7 @@ void SceneDemo::DrawDebug()
 
     // slime
     {
-        //EnemyManager::Instance().DrawDebug();
+        EnemyManager::Instance().DrawDebug();
         //enemySlime[0]->DrawDebug();
         //enemySlime[1]->DrawDebug();
     }

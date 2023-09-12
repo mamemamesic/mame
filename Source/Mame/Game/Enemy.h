@@ -2,6 +2,8 @@
 #include "Character.h"
 #include "ProjectileIconManager.h"
 
+class EnemyManager;
+
 class Enemy : public Character
 {
 public:
@@ -16,11 +18,10 @@ public:
     virtual void Render(const float& elapsedTime, const float& scale);  // •`‰æˆ—
     virtual void DrawDebug() = 0;                                       // ƒfƒoƒbƒO•`‰æ
 
-    virtual void Death() {} // €–Sˆ—
-
 public:
     ProjectileIconManager projectileIconManager_ = {};
 
     int hp_ = 5;
+
 };
 

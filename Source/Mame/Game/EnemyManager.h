@@ -6,6 +6,21 @@
 
 class EnemyManager
 {
+public:
+    enum class EnemyType
+    {
+        Normal,
+        Boss,
+    };
+
+    struct EnemySet
+    {
+        float             spawnTime_          = 0.0f;
+        EnemyType         enemyType_          = EnemyType::Normal;
+        DirectX::XMFLOAT3 spawnPosition_      = { 0,0,0 };
+        int               spawnProjIconCount_ = 0;                  // 生成する弾丸アイコンの数
+    };
+
 private:
     EnemyManager() {}
     ~EnemyManager() {}
@@ -46,6 +61,20 @@ public:
 
     // デバッグプリミティブ描画
     void DrawDebugPrimitive();
+
+public:
+    static constexpr int ENEMY_SETS_INDEX_COUNT_ = 4;
+
+    const EnemySet enemySets_[ENEMY_SETS_INDEX_COUNT_] = {
+        { 3.0f,  EnemyType::Normal, { 0, 0.25f, 50.0f },  1 },
+        { 6.0f,  EnemyType::Normal, { 0, 0.25f, 50.0f },  1 },
+        { 9.0f,  EnemyType::Normal, { 0, 0.25f, 50.0f },  1 },
+        { 12.0f, EnemyType::Normal, { 0, 0.25f, 50.0f },  2 },
+    };
+
+public:
+    float timer_ = 0.0f;
+    int   currentEnemySetsIndex_ = 0;
 
 private:
     std::vector<Enemy*> enemies_ = {};
