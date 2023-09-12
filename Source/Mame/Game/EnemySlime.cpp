@@ -140,6 +140,8 @@ void EnemySlime::End()
 void EnemySlime::Render(const float& elapsedTime, const float& scale)
 {
     Enemy::Render(elapsedTime, scale);
+
+    projectileManager.Render(0.1f);
 }
 
 // ImGui—p
