@@ -239,8 +239,12 @@ void SceneDemo::Update(const float& elapsedTime)
         const std::unique_ptr<Player>& player = PlayerManager::Instance().GetPlayer();
         if (player->hp_ <= 0)
         {
-            Mame::Scene::SceneManager::Instance().ChangeScene(new SceneDemo);
-            return;
+            player->deathTimer_ += elapsedTime;
+            if (player->deathTimer_ >= 1.0f)
+            {
+                Mame::Scene::SceneManager::Instance().ChangeScene(new SceneDemo);
+                return;
+            }
         }
     }
 

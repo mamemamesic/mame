@@ -103,7 +103,7 @@ void ProjectileStraite::CollisionProjectileVsEnemies()
                     ProjectileStraiteIcon* projStraiteIcon = new ProjectileStraiteIcon(&player->projectileIconManager_);
                     projStraiteIcon->GetTransform()->SetPosition(enemyPos);
 
-                    ++player->hp_; // ‘Ì—Í‰ñ•œ
+                    if (player->hp_ < player->maxHp_) ++player->hp_; // ‘Ì—Í‰ñ•œ
                 }
 
                 enemyManager.Remove(enemy);

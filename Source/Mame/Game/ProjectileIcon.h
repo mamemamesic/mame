@@ -33,6 +33,8 @@ public:
     std::unique_ptr<Model> model_ = nullptr;
     ProjectileManager      projectileManager_   = {};
 
+    DirectX::XMFLOAT3 bombDirection_ = {}; // ”š”­•ûŒü
+
     float offsetX_      = 0.0f;
     float shitLeft_     = 0.0f;
     float shitRight_    = 0.0f;

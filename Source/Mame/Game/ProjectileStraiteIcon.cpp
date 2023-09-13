@@ -28,12 +28,14 @@ void ProjectileStraiteIcon::Update(const float& elapsedTime)
 {
     ProjectileIcon::Update(elapsedTime);
 
+    const std::unique_ptr<Player>& player = PlayerManager::Instance().GetPlayer();;
+    if (player->hp_ <= 0) return;
+
     launchTimer_ -= elapsedTime;
     if (launchTimer_ <= 0.0f)
     {
-        PlayerManager& playerManager = PlayerManager::Instance();
-        const DirectX::XMFLOAT3 position = playerManager.GetPlayer()->GetTransform()->GetPosition();
-        const DirectX::XMFLOAT3 forward  = playerManager.GetPlayer()->GetTransform()->CalcForward();
+        const DirectX::XMFLOAT3 position = player->GetTransform()->GetPosition();
+        const DirectX::XMFLOAT3 forward  = player->GetTransform()->CalcForward();
 
         constexpr float length = 0.3f;
 

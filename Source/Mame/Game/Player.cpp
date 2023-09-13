@@ -1,6 +1,7 @@
 #include "Player.h"
 
 #include <memory>
+#include <random>
 
 #include "../Graphics/Graphics.h"
 #include "../Graphics/DebugRenderer.h"
@@ -74,6 +75,84 @@ void Player::Update(const float& elapsedTime)
 
     Transform* transform = GetTransform();
     const GamePad& gamePad = Input::Instance().GetGamePad();
+
+    if (this->hp_ <= 0)
+    {
+        // 爆発方向設定
+        if (false == projectileIconManager_.isSetBombDirection_)
+        {
+            constexpr float randMin = -1.0f;
+            constexpr float randMax = 1.0f;
+            std::random_device rd = {};
+            std::default_random_engine eng(rd());
+            std::uniform_real_distribution<> distr(randMin, randMax);
+
+            float directionX = static_cast<float>(distr(eng));
+            float directionY = static_cast<float>(distr(eng));
+            float directionZ = static_cast<float>(distr(eng));
+
+            // プレイヤーの爆発方向設定
+            {
+                this->bombDirection_ = { directionX, directionY, directionZ };
+            }
+
+            // 弾丸アイコンの爆発方向設定
+            {
+                const int projectileIconCount = projectileIconManager_.GetProjectileIconCount();
+                for (int i = 0; i < projectileIconCount; ++i)
+                {
+                    const int projectileIconRenderLimit = projectileIconManager_.projectileIconRenderLimit_;
+                    if (i >= projectileIconRenderLimit) break;
+
+                    ProjectileIcon* projectileIcon = projectileIconManager_.GetProjectileIcon(i);
+
+                    directionX = static_cast<float>(distr(eng));
+                    directionY = static_cast<float>(distr(eng));
+                    directionZ = static_cast<float>(distr(eng));
+                    projectileIcon->bombDirection_ = { directionX, directionY, directionZ };
+                }
+            }
+
+            projectileIconManager_.isSetBombDirection_ = true;
+        }
+
+        // 爆発方向に飛ばす
+        {
+            constexpr float bombSpeed = 11.0f;
+            XMFLOAT3 bomb = {
+                bombSpeed * this->bombDirection_.x * elapsedTime,
+                bombSpeed * this->bombDirection_.y * elapsedTime,
+                bombSpeed * this->bombDirection_.z * elapsedTime,
+            };
+            this->GetTransform()->AddPosition(bomb);
+
+            constexpr float addRotate = DirectX::XMConvertToRadians(180.0f);
+            this->GetTransform()->AddRotationX(addRotate * elapsedTime);
+            this->GetTransform()->AddRotationY(addRotate * elapsedTime);
+            this->GetTransform()->AddRotationZ(addRotate * elapsedTime);
+
+            const int projectileIconCount = projectileIconManager_.GetProjectileIconCount();
+            for (int i = 0; i < projectileIconCount; ++i)
+            {
+                const int projectileIconRenderLimit = projectileIconManager_.projectileIconRenderLimit_;
+                if (i >= projectileIconRenderLimit) break;
+
+                ProjectileIcon* projectileIcon = projectileIconManager_.GetProjectileIcon(i);
+                Transform* projIconTransform = projectileIcon->GetTransform();
+
+                bomb = {
+                    bombSpeed * projectileIcon->bombDirection_.x * elapsedTime,
+                    bombSpeed * projectileIcon->bombDirection_.y * elapsedTime,
+                    bombSpeed * projectileIcon->bombDirection_.z * elapsedTime,
+                };
+                projIconTransform->AddPosition(bomb);
+            }
+        }
+
+        projectileIconManager_.Update(elapsedTime);
+
+        return;
+    }
 
     Character::Update(elapsedTime); // キャラクター共通の更新処理
 
@@ -287,7 +366,7 @@ void Player::Update(const float& elapsedTime)
     if (invincibleTimer_ > 0.0f)
     {
         const int timer = static_cast<int>(invincibleTimer_ * 100.0f);
-        model->color.w = (timer & 0x08) ? 0.5f : 1.0f;
+        model->color.w = (timer & 0x08) ? 0.1f : 1.0f;
 
         invincibleTimer_ -= elapsedTime; // 無敵時間減少
     }

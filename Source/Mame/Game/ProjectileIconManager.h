@@ -55,6 +55,8 @@ public:
     DirectX::XMFLOAT3 projStraitePosition_ = {};
     DirectX::XMFLOAT3 projStraiteForward_  = {};
 
+    bool isSetBombDirection_ = false; // ”š”­•ûŒü‚ğİ’è‚µ‚½‚©
+
 private:
     std::vector<ProjectileIcon*>  projectileIcons_ = {};
     std::set<ProjectileIcon*>     removes_ = {};
