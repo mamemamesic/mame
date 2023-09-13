@@ -72,6 +72,7 @@ private:
     int time;
     int enemy_count = 0;
     bool flg = false;
+    int position_z;
 private:
     // GltfModel test
     std::unique_ptr<GltfModel> gltfModels[8];

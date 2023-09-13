@@ -314,7 +314,7 @@ void SceneDemo::Update(const float& elapsedTime)
         std::uniform_real_distribution<float> distr(FLOAT_MIN, FLOAT_MAX);
         x = distr(eng);
        
-        if (time > 400 && ENEMY_MAX > enemy_count) {
+        if (time > 250 && ENEMY_MAX > enemy_count) {
             enemySet[enemy_count].x = x;
             new EnemySlime(&EnemyManager::Instance(), enemySet[enemy_count], enemy_count);
             time = 0;
@@ -542,7 +542,7 @@ void SceneDemo::DrawDebug()
     {
         isDebugRender = (isDebugRender) ? false : true;
     }
-    
+
     //if (ImGui::Button("create book"))
     //{
     //    ItemManager::Instance().Register(new Book());

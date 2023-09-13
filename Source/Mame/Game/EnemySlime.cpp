@@ -2,6 +2,10 @@
 #include "EnemyManager.h"
 #include "../Graphics/Graphics.h"
 
+#include <random>
+//乱数　変数
+constexpr int Int_MIN = 0;
+constexpr float Int_MAX = 3;
 
 // コンストラクタ
 EnemySlime::EnemySlime(EnemyManager* manager, DirectX::XMFLOAT3 enemy_set,int count)
@@ -19,7 +23,16 @@ EnemySlime::EnemySlime(EnemyManager* manager, DirectX::XMFLOAT3 enemy_set,int co
     pos = enemy_set;
 
     enemy_count = count;
-   
+
+    std::random_device rd;                                      //たまにspeedが速い敵が出現する
+    std::default_random_engine eng(rd());                       //
+    std::uniform_real_distribution<> distr(Int_MIN, Int_MAX);   //
+    random = distr(eng);                                        //
+    if (random == 0) speed.z = -0.04f;                          //
+
+    if (enemy_count != 6 && random == 1) flg = true;            //横に移動しながら前にくる敵
+    
+
     GetTransform()->SetPosition(pos);
 
     // ImGui名前設定
@@ -70,32 +83,34 @@ void EnemySlime::Update(const float& elapsedTime)
     //雑魚敵の設定
     switch (state) {
     case 0:
-        /*speed.x = elapsedTime * 0.01f * vecPlayer.x / dist;
-        speed.y = elapsedTime * 0.01f * vecPlayer.y / dist;
-        speed.z = elapsedTime * 0.01f * vecPlayer.z / dist;*/
-        //speed.z = -0.001f*elapsedFream;
         speed.z = this->speed.z;
+        if (flg)speed.x = 0.01f;
         state++;
         break;
     case 1:
         pos.z += speed.z;
-        if (enemy_count == 6)   //ボスの設定に移動
+
+        if (enemy_count == 6)   //ボスの設定に移動(z固定x往復)
         {
             if (pos.z <= 5)
             {
                 speed.z = 0;
-                pos.z += speed.z;
                 state++;
                 break;
             }
         }
+        pos.x += speed.x;
+        if(pos.x > 2)state = 3;
+        if (pos.x < -2)state = 2;
         break;
     case 2: //ボスの設定
         speed.x = 0.01;
+        if (flg) { state = 1; break; }
         state = 4;
         break;
     case 3:
         speed.x = -0.01;
+        if (flg) { state = 1; break; }
         state = 4;
         break;
     case 4:
@@ -143,6 +158,7 @@ void EnemySlime::DrawDebug()
         ImGui::DragFloat("pos_x", &pos_1.x);
         ImGui::DragFloat("pos_y", &pos_1.y);
         ImGui::DragFloat("pos_z", &pos_1.z);
+        ImGui::InputInt("random", &random);
         SetRange(range);
 
         ImGui::EndMenu();

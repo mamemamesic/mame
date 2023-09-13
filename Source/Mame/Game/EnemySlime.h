@@ -24,6 +24,7 @@ private:
     int enemy_count;
     int state = 0;
     DirectX::XMFLOAT3 enemySet = { 0,0,10 };
-   
+   int random;
+   bool flg = false;
 };
 
