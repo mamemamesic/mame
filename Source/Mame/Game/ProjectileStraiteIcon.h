@@ -17,7 +17,7 @@ public:
     void DrawDebug()                        override;   // ImGui—p
 
 private:
-    float launchTime_ = 1.0f;
+    float launchTime_ = 0.75f;
 
 };
 
