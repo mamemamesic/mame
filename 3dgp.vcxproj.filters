@@ -360,7 +360,6 @@
     <ClInclude Include="Source\Mame\Scene\SceneGame.h">
       <Filter>mamelib\Mame\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h" />
     <ClInclude Include="Source\Mame\Graphics\Effect.h">
       <Filter>mamelib\Mame\Graphics</Filter>
     </ClInclude>
@@ -648,10 +647,8 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="3dgp.rc" />
-    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="icon1.ico" />
     <Image Include="icon1.ico" />
   </ItemGroup>
 </Project>

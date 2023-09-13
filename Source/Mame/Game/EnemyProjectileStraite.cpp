@@ -73,11 +73,11 @@ void EnemyProjectileStraite::CollisionProjectileVsPlayer()
 {
     if (this->hp_ <= 0) return;
 
-    using DirectX::XMFLOAT3;
-
     std::unique_ptr<Player>& player = PlayerManager::Instance().GetPlayer();
-
     if (player->hp_ <= 0) return;
+    if (player->invincibleTimer_ > 0.0f) return;
+
+    using DirectX::XMFLOAT3;
 
     const XMFLOAT3& projPos = GetTransform()->GetPosition();
     const XMFLOAT3& plPos = player->GetTransform()->GetPosition();
@@ -88,6 +88,7 @@ void EnemyProjectileStraite::CollisionProjectileVsPlayer()
         plPos, player->radius_, &outPosition))
     {
         --player->hp_;
+        player->invincibleTimer_ = player->setInvincibleTime_;
 
         --this->hp_;
         if (this->hp_ <= 0) { this->Destroy(); } // íeä€è¡ãé

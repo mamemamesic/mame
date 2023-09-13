@@ -42,7 +42,7 @@ void Player::Initialize()
 {
     GetTransform()->SetPosition(DirectX::XMFLOAT3(0, 0.25f, 0));
     debugSqhereOffset.y += offsetY_;
-    model->color = DirectX::XMFLOAT4(0.5f, 0.5f, 1.0f, 1.0f);
+    //model->color = DirectX::XMFLOAT4(0.5f, 0.5f, 1.0f, 1.0f);
 
     Character::Initialize();
 
@@ -73,13 +73,13 @@ void Player::Update(const float& elapsedTime)
     using DirectX::XMConvertToRadians;
 
     Transform* transform = GetTransform();
+    const GamePad& gamePad = Input::Instance().GetGamePad();
 
     Character::Update(elapsedTime); // キャラクター共通の更新処理
 
     Character::UpdateAnimation(elapsedTime); // アニメーション更新
 
     // 移動
-    const GamePad& gamePad = Input::Instance().GetGamePad();
     {
         const float aLx = gamePad.GetAxisLX();
         //const float aLy = gamePad.GetAxisLY();
@@ -90,8 +90,8 @@ void Player::Update(const float& elapsedTime)
         //if (aLy != 0.0f) pos.z += ((aLy * addPos) * elapsedTime);
 
         constexpr float posLimitX = 1.875f;
-        if      (pos.x < -posLimitX) pos.x = -posLimitX;
-        else if (pos.x >  posLimitX) pos.x =  posLimitX;
+        if (pos.x < -posLimitX) pos.x = -posLimitX;
+        else if (pos.x > posLimitX) pos.x = posLimitX;
 
         // 位置更新
         transform->SetPosition(pos);
@@ -122,13 +122,13 @@ void Player::Update(const float& elapsedTime)
     }
 #endif
 
-    //// 近接攻撃入力処理
-    //if (InputCloseRangeAttack() == true) CreateCloseRangeAttackSphere();
+    {
+        //// 近接攻撃入力処理
+        //if (InputCloseRangeAttack() == true) CreateCloseRangeAttackSphere();
 
-    //// 近接攻撃更新処理
-    //UpdateCloseRangeAttack(elapsedTime);
-
-
+        //// 近接攻撃更新処理
+        //UpdateCloseRangeAttack(elapsedTime);
+    }
 
     // 弾丸アイコン更新処理
     {
@@ -145,10 +145,10 @@ void Player::Update(const float& elapsedTime)
 
         // 位置設定
         {
-            int   pileUpCounter   = 0;       // 重ねた数をカウントする
-            int   columnCounter   = 0;       // 列の数をカウントする
-            float shiftLeft       = 0.0f;    // すべての列を等しく左にずらす
-            float shiftRight      = 0.0f;    // それぞれの列を列数に比例して右にずらす
+            int   pileUpCounter = 0;       // 重ねた数をカウントする
+            int   columnCounter = 0;       // 列の数をカウントする
+            float shiftLeft = 0.0f;    // すべての列を等しく左にずらす
+            float shiftRight = 0.0f;    // それぞれの列を列数に比例して右にずらす
 
             const float moveSpeedX = 3.0f;
             const float moveSpeedY = 2.75f;
@@ -203,10 +203,10 @@ void Player::Update(const float& elapsedTime)
 #endif
                 {
                     // 列を全体的に左にずらしてから個々の列を列数に比例して右にずらしていく
-                    shiftLeft  = (columnCount * addPositionX);
+                    shiftLeft = (columnCount * addPositionX);
                     shiftRight = (static_cast<float>(columnCounter) * 0.1f);
 
-                    projectileIcon->shitLeft_  = shiftLeft;
+                    projectileIcon->shitLeft_ = shiftLeft;
                     projectileIcon->shitRight_ = shiftRight;
                 }
 
@@ -268,6 +268,32 @@ void Player::Update(const float& elapsedTime)
         }
 
         projectileIconManager_.Update(elapsedTime);
+    }
+
+
+    // 残り体力によって色を赤くしていく
+    {
+        const float floatHp = static_cast<float>(hp_);
+        const float floatMaxHp = static_cast<float>(maxHp_);
+        const float hpPercentage = (floatHp / floatMaxHp);
+        const float setColorR = (hp_ == 1) ? 1.0f : (1.0f - hpPercentage);
+        const float setColorG = (hp_ == 1) ? 0.0f : (1.0f - hpPercentage);
+        const float setColorB = (hp_ == 1) ? 0.0f : hpPercentage;
+        model->color.x = setColorR;
+        model->color.y = setColorG;
+        model->color.z = setColorB;
+    }
+
+    if (invincibleTimer_ > 0.0f)
+    {
+        const int timer = static_cast<int>(invincibleTimer_ * 100.0f);
+        model->color.w = (timer & 0x08) ? 0.5f : 1.0f;
+
+        invincibleTimer_ -= elapsedTime; // 無敵時間減少
+    }
+    else
+    {
+        model->color.w = 1.0f;
     }
 
 }

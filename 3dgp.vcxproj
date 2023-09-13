@@ -269,7 +269,6 @@
     <ClInclude Include="External\imgui\imstb_rectpack.h" />
     <ClInclude Include="External\imgui\imstb_textedit.h" />
     <ClInclude Include="External\imgui\imstb_truetype.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="Source\Mame\FrameBuffer.h" />
     <ClInclude Include="Source\Mame\framework.h" />
     <ClInclude Include="Source\Mame\FullscreenQuad.h" />
@@ -560,10 +559,6 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="3dgp.rc" />
-    <ResourceCompile Include="Resource.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="icon1.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

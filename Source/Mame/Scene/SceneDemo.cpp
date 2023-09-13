@@ -1,5 +1,7 @@
 #include "SceneDemo.h"
 
+#include "../Scene/SceneManager.h"
+
 #include "../Other/misc.h"
 
 #include "../Graphics/Graphics.h"
@@ -18,6 +20,7 @@
 #include "../Game/EnemyProjectileStraiteIcon.h"
 #include "../Game/EnemyManager.h"
 
+
 bool SceneDemo::isDebugRender = true;
 
 #include <random>
@@ -29,24 +32,24 @@ float x;
 
 //敵の初期位置
 DirectX::XMFLOAT3 enemySet[] = {
-{ 0,0,10 },
-{2,0,15 },
-{-2,0,20 },
-{1,0,25 },
-{2,0,30 },
-{-1,0,35 },
-{x,0,40 },
-{x,0,45 },
-{x,0,50 },
-{x,0,55 },
-{x,0,60 },
-{x,0,65 },
-{x,0,70 },
-{x,0,70 },
-{x,0,70 },
-{x,0,70 },
-{x,0,70 },
-{x,0,70 }
+    { 0,0,10 },
+    {2,0,15 },
+    {-2,0,20 },
+    {1,0,25 },
+    {2,0,30 },
+    {-1,0,35 },
+    {x,0,40 },
+    {x,0,45 },
+    {x,0,50 },
+    {x,0,55 },
+    {x,0,60 },
+    {x,0,65 },
+    {x,0,70 },
+    {x,0,70 },
+    {x,0,70 },
+    {x,0,70 },
+    {x,0,70 },
+    {x,0,70 }
 };
 
 #define ENEMY_MAX sizeof(enemySet)/sizeof(enemySet[0])
@@ -231,6 +234,16 @@ void SceneDemo::Update(const float& elapsedTime)
 {
     GamePad& gamePad = Input::Instance().GetGamePad();
 
+    // プレイヤーが死んだらリセット
+    {
+        const std::unique_ptr<Player>& player = PlayerManager::Instance().GetPlayer();
+        if (player->hp_ <= 0)
+        {
+            Mame::Scene::SceneManager::Instance().ChangeScene(new SceneDemo);
+            return;
+        }
+    }
+
     //if (gamePad.GetButtonDown() & GamePad::BTN_A)
     //{
     //    //for (int i = 0; i < 5; ++i)
@@ -303,32 +316,41 @@ void SceneDemo::Update(const float& elapsedTime)
         const EnemySet* enemySets    = enemyManager.enemySets_;
         int&            index        = enemyManager.currentEnemySetsIndex_; // 値を変えるので参照変数
 
-        // 配列の要素数が最大要素数より小さくてタイマーが生成時間を過ぎたら敵を生成
+        // 現在の配列の要素数が最大要素数より小さくてタイマーが生成時間を過ぎたら敵を生成
         enemyManager.timer_ += elapsedTime;
         if ( (index < enemyManager.ENEMY_SETS_INDEX_COUNT_) &&
              (enemyManager.timer_ >= enemySets[index].spawnTime_) )
         {
             EnemySlime* enemySlime = nullptr;
 
-            // タイプ毎に生成する敵の種類を設定
-            switch (enemySets[index].enemyType_)
+            // パラメータ設定
             {
-            case EnemyType::Normal:
-                enemySlime = new EnemySlime();
-                break;
-            case EnemyType::Boss:
-                //enemySlime = new EnemyBoss();
-                break;
-            }
+                // タイプ毎に生成する敵の種類を設定
+                switch (enemySets[index].enemyType_)
+                {
+                case EnemyType::Normal:
+                    enemySlime = new EnemySlime();
+                    break;
+                case EnemyType::Boss:
+                    //enemySlime = new EnemyBoss();
+                    break;
+                }
 
-            // 生成位置設定
-            enemySlime->GetTransform()->SetPosition(enemySets[index].spawnPosition_);
+                // 生成位置設定
+                enemySlime->GetTransform()->SetPosition(enemySets[index].spawnPosition_);
 
-            // 弾丸アイコンを指定数生成
-            const int spawnProjIconCount = enemySets[index].spawnProjIconCount_;
-            for (int i = 0; (i < spawnProjIconCount); ++i)
-            {
-                new EnemyProjectileStraiteIcon(&enemySlime->projectileIconManager_); // 警告は認知
+                // 弾丸アイコンを指定数生成
+                const int spawnProjIconCount = enemySets[index].spawnProjIconCount_;
+                for (int i = 0; (i < spawnProjIconCount); ++i)
+                {
+                    new EnemyProjectileStraiteIcon(&enemySlime->projectileIconManager_);
+                }
+
+                // 体力設定
+                enemySlime->hp_ = enemySets[index].hp_; // 警告は認知
+                enemySlime->maxHp_ = enemySets[index].hp_;
+
+                enemySlime->model->color.w = 0.0f;
             }
 
             enemyManager.Register(enemySlime); // マネージャーに登録

@@ -56,6 +56,9 @@ private:
 public:
     ProjectileIconManager projectileIconManager_ = {};
 
+    float setInvincibleTime_  = 1.0f;
+    float invincibleTimer_    = 0.0f;
+
 private:
     CloseRangeAttackSphere craSphere_ = {}; // ‹ßÚUŒ‚—p‚Ì‹…‘Ì
     float sphereRadius_     = 0.5f;

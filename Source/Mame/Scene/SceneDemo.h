@@ -22,7 +22,7 @@
 #define MODEL 0
 #define SPRITE 0
 #define BLOOM 0
-#define SKYBOX 1
+#define SKYBOX 0
 
 class SceneDemo : public Mame::Scene::BaseScene
 {

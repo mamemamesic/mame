@@ -3,6 +3,8 @@
 #include "../Graphics/Graphics.h"
 #include "EnemyManager.h"
 #include "EnemyProjectileStraiteIcon.h"
+#include "PlayerManager.h"
+#include "Collision.h"
 
 // コンストラクタ
 EnemySlime::EnemySlime(/*DirectX::XMFLOAT3 enemy_set,int count*/)
@@ -77,8 +79,7 @@ void EnemySlime::Update(const float& elapsedTime)
     {
         XMFLOAT3 pos = GetTransform()->GetPosition();
 
-        constexpr float addSpeedZ = (-5.0f);
-        pos.z += addSpeedZ * elapsedTime;
+        pos.z += speed.z * elapsedTime;
 
         GetTransform()->SetPosition(pos);
     }
@@ -155,10 +156,19 @@ void EnemySlime::Update(const float& elapsedTime)
         }
 
         const XMFLOAT3& position = GetTransform()->GetPosition();
-        const XMFLOAT3& forward  = GetTransform()->CalcForward();
+        const XMFLOAT3& forward = GetTransform()->CalcForward();
         projectileIconManager_.projStraitePosition_ = position;
         projectileIconManager_.projStraiteForward_ = forward;
         projectileIconManager_.Update(elapsedTime);
+    }
+
+
+    CollisionEnemyVsPlayer();
+
+    if (model->color.w < 1.0f)
+    {
+        model->color.w += (1.75f * elapsedTime);
+        if (model->color.w > 1.0f) model->color.w = 1.0f;
     }
 }
 
@@ -200,5 +210,31 @@ void EnemySlime::DrawDebug()
         ImGui::EndMenu();
     }
 #endif // USE_IMGUI
+}
+
+void EnemySlime::CollisionEnemyVsPlayer()
+{
+    if (this->hp_ <= 0) return;
+
+    const std::unique_ptr<Player>& player = PlayerManager::Instance().GetPlayer();
+    if (player->hp_ <= 0) return;
+    if (player->invincibleTimer_ > 0.0f) return;
+
+    using DirectX::XMFLOAT3;
+
+    const XMFLOAT3& enmPos = this->GetTransform()->GetPosition();
+    const XMFLOAT3& plPos  = player->GetTransform()->GetPosition();
+
+    XMFLOAT3 outPosition = {};
+    if (Collision::IntersectSphereVsSphere(
+        enmPos, this->radius_,
+        plPos, player->radius_, &outPosition))
+    {
+        --player->hp_;
+        player->invincibleTimer_ = player->setInvincibleTime_;
+
+        return;
+    }
+
 }
 

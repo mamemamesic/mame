@@ -1,4 +1,5 @@
 #include "ProjectileIconManager.h"
+#include "PlayerManager.h"
 
 // コンストラクタ
 ProjectileIconManager::ProjectileIconManager()
@@ -129,10 +130,9 @@ void ProjectileIconManager::Register(ProjectileIcon* projectileIcon)
 
        pileUpCounter_ = 0; // 積み上げカウントをリセット
     }
-
     // 色替え
-    if (pileUpCounter_ > PILE_UP_COUNT_MAX_ &&
-        columnCounter_ >= 4)
+    else if (pileUpCounter_ > PILE_UP_COUNT_MAX_ &&
+             columnCounter_ >= 4)
     {
         ProjectileIcon* projectileIcon = GetProjectileIcon(colorChangeProjectileIconIndex_);
         projectileIcon->model_->color = colorTable_[colorTableIndex_];

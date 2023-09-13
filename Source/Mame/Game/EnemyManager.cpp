@@ -4,6 +4,9 @@
 void EnemyManager::Initialize()
 {
     for (Enemy*& enemy : enemies_) enemy->Initialize();
+
+    currentEnemySetsIndex_ = 0;
+    timer_                 = 0.0f;
 }
 
 void EnemyManager::Finalize()

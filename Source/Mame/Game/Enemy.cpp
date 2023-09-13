@@ -9,6 +9,14 @@ void Enemy::Initialize()
 
 void Enemy::Update(const float& elapsedTime)
 {
+    // c‚è‘Ì—Í‚É‚æ‚Á‚ÄF‚ğÔ‚­‚µ‚Ä‚¢‚­
+    {
+        const float floatHp    = static_cast<float>(hp_);
+        const float floatMaxHp = static_cast<float>(maxHp_);
+        const float setColorGB = (floatHp / floatMaxHp);
+        model->color.y = model->color.z = setColorGB;
+    }
+
     Character::Update(elapsedTime);
 }
 

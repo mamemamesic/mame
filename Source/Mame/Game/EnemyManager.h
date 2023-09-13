@@ -19,6 +19,7 @@ public:
         EnemyType         enemyType_          = EnemyType::Normal;
         DirectX::XMFLOAT3 spawnPosition_      = { 0,0,0 };
         int               spawnProjIconCount_ = 0;                  // ê∂ê¨Ç∑ÇÈíeä€ÉAÉCÉRÉìÇÃêî
+        int               hp_                 = 0;
     };
 
 private:
@@ -63,13 +64,24 @@ public:
     void DrawDebugPrimitive();
 
 public:
-    static constexpr int ENEMY_SETS_INDEX_COUNT_ = 4;
+    static constexpr int ENEMY_SETS_INDEX_COUNT_ = 13;
 
-    const EnemySet enemySets_[ENEMY_SETS_INDEX_COUNT_] = {
-        { 3.0f,  EnemyType::Normal, { 0, 0.25f, 50.0f },  1 },
-        { 6.0f,  EnemyType::Normal, { 0, 0.25f, 50.0f },  1 },
-        { 9.0f,  EnemyType::Normal, { 0, 0.25f, 50.0f },  1 },
-        { 12.0f, EnemyType::Normal, { 0, 0.25f, 50.0f },  2 },
+     EnemySet enemySets_[ENEMY_SETS_INDEX_COUNT_] = {
+        { (3.0f *  1.0f), EnemyType::Normal, {  1.0f, 0.25f, 50.0f }, 0, 3 }, // 1
+        { (3.0f *  2.0f), EnemyType::Normal, { -1.0f, 0.25f, 50.0f }, 0, 3 }, // 2
+        { (3.0f *  3.0f), EnemyType::Normal, {  2.0f, 0.25f, 50.0f }, 1, 3 }, // 3
+        { (3.0f *  4.0f), EnemyType::Normal, { -2.0f, 0.25f, 50.0f }, 1, 3 }, // 4
+        { (3.0f *  5.0f), EnemyType::Normal, {  2.0f, 0.25f, 50.0f }, 1, 3 }, // 5
+        { (3.0f *  6.0f), EnemyType::Normal, {  1.0f, 0.25f, 50.0f }, 1, 3 }, // 6
+        { (3.0f *  7.0f), EnemyType::Normal, { -1.0f, 0.25f, 50.0f }, 4, 6 }, // 7
+        { (3.0f *  8.0f), EnemyType::Normal, {  2.0f, 0.25f, 50.0f }, 2, 3 }, // 8
+        { (3.0f *  9.0f), EnemyType::Normal, {  1.0f, 0.25f, 50.0f }, 2, 3 }, // 9
+        { (3.0f * 10.0f), EnemyType::Normal, { -2.0f, 0.25f, 50.0f }, 2, 3 }, // 10
+
+        { (3.0f * 11.0f), EnemyType::Normal, { -2.0f, 0.25f, 50.0f }, 2, 3 }, // 11
+        { (3.0f * 12.0f), EnemyType::Normal, { -2.0f, 0.25f, 50.0f }, 2, 3 }, // 12
+        { (3.0f * 13.0f), EnemyType::Normal, { -2.0f, 0.25f, 50.0f }, 2, 3 }, // 13
+
     };
 
 public:

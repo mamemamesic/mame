@@ -53,7 +53,8 @@ public:
     DirectX::XMFLOAT3 debugSqhereOffset{};  // “–‚½‚è”»’è—p
     float radius_ = 0.25f;                   // ‹…“–‚½‚è”»’è”¼Œa
 
-    int hp_ = 5;
+    int maxHp_ = 5;
+    int hp_    = maxHp_;
 
 private:
     Transform collisionSqhereTransform{};

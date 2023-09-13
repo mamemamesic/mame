@@ -70,7 +70,7 @@ namespace Mame::Scene
     // シーンクリア
     void SceneManager::Clear()
     {
-        if (!currentScene)return;
+        if (!currentScene) return;
 
         currentScene->Finalize();
         delete currentScene;

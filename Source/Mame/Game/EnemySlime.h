@@ -17,10 +17,13 @@ public:
     void DrawDebug()                                            override; // デバッグ描画
 
 private:
+    void CollisionEnemyVsPlayer();
+
+private:
     float offsetY_ = 0.25f;
     float dist;
     DirectX::XMFLOAT3 pos_1;
-    DirectX::XMFLOAT3 speed = { 0,0,-0.02f };
+    DirectX::XMFLOAT3 speed = { 0,0,-10.0f };
     int enemy_count;
     int state = 0;
 
