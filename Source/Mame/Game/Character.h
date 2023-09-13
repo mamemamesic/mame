@@ -54,7 +54,7 @@ public:
     float radius_ = 0.25f;                   // ‹…“–‚½‚è”»’è”¼Œa
 
     int maxHp_ = 5;
-    int hp_    = maxHp_;
+    int hp_    = 3;
 
     DirectX::XMFLOAT3 bombDirection_ = {};
 

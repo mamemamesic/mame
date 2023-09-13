@@ -27,7 +27,7 @@ void Stage::Initialize()
     GetTransform()->SetScale(DirectX::XMFLOAT3(5.0f, 1.0f, 55.0f));
     //GetTransform()->SetScaleFactor(100.0f);
     GetTransform()->SetScaleFactor(1.0f);
-    model->color = { 0.65f, 0.65f, 0.65f, 1.0f };
+    model->color = { 0.55f, 0.55f, 0.55f, 1.0f };
 }
 
 void Stage::Finalize()

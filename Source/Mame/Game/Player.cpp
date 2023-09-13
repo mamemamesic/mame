@@ -50,7 +50,7 @@ void Player::Initialize()
     debugSqhereOffset.y += offsetY_;
     //model->color = DirectX::XMFLOAT4(0.5f, 0.5f, 1.0f, 1.0f);
 
-    shotRay_->GetTransform()->SetScale(DirectX::XMFLOAT3(0.025f, 0.025f, 80.0f));
+    shotRay_->GetTransform()->SetScale(DirectX::XMFLOAT3(0.03f, 0.03f, 80.0f));
     shotRay_->color = { 1.0f, 0.3f, 0.0f, 0.8f };
 
     Character::Initialize();
@@ -368,9 +368,9 @@ void Player::Update(const float& elapsedTime)
         const float floatHp = static_cast<float>(hp_);
         const float floatMaxHp = static_cast<float>(maxHp_);
         const float hpPercentage = (floatHp / floatMaxHp);
-        const float setColorR = (hp_ == 1) ? 1.0f : (1.0f - hpPercentage);
-        const float setColorG = (hp_ == 1) ? 0.0f : (1.0f - hpPercentage);
-        const float setColorB = (hp_ == 1) ? 0.0f : hpPercentage;
+        const float setColorR = (hp_ == 1) ? 1.0f : (1.25f - hpPercentage);
+        const float setColorG = (hp_ == 1) ? 0.0f : (1.25f - hpPercentage);
+        const float setColorB = (hp_ == 1) ? 0.0f : (hpPercentage);
         model->color.x = setColorR;
         model->color.y = setColorG;
         model->color.z = setColorB;
@@ -379,13 +379,13 @@ void Player::Update(const float& elapsedTime)
     if (invincibleTimer_ > 0.0f)
     {
         const int timer = static_cast<int>(invincibleTimer_ * 100.0f);
-        model->color.w = (timer & 0x08) ? 0.4f : 1.0f;
+        model->color.w = (timer & 0x08) ? 0.4f : 0.95f;
 
         invincibleTimer_ -= elapsedTime; // –³“GŽžŠÔŒ¸­
     }
     else
     {
-        model->color.w = 1.0f;
+        model->color.w = 0.95f;
     }
 
 }

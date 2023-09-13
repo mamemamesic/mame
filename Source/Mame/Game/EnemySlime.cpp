@@ -256,10 +256,10 @@ void EnemySlime::Update(const float& elapsedTime)
 
     CollisionEnemyVsPlayer();
 
-    if (model->color.w < 1.0f)
+    if (model->color.w < 0.9f)
     {
         model->color.w += (1.75f * elapsedTime);
-        if (model->color.w > 1.0f) model->color.w = 1.0f;
+        if (model->color.w > 0.9f) model->color.w = 0.9f;
     }
 }
 

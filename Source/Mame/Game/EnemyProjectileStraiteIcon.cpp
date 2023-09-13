@@ -46,7 +46,7 @@ void EnemyProjectileStraiteIcon::Update(const float& elapsedTime)
         EnemyProjectileStraite* projectile = new EnemyProjectileStraite(&projectileManager_);
         projectile->speed_          = setSpeed_;
         projectile->lifeTimer_      = setLifeTime_;
-        projectile->model->color    = model_->color;
+        projectile->model->color    = { 1.0f, 0.1f, 0.1f, 1.0f };
         projectile->Launch(forward, spawnPosition);
 
         launchTimer_ = launchTime_;
