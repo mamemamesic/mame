@@ -240,7 +240,8 @@ void SceneDemo::Update(const float& elapsedTime)
         if (player->hp_ <= 0)
         {
             player->deathTimer_ += elapsedTime;
-            if (player->deathTimer_ >= 1.0f)
+            if ((player->deathTimer_ >= 2.5f) ||
+                (gamePad.GetButtonDown() & GamePad::BTN_A))
             {
                 Mame::Scene::SceneManager::Instance().ChangeScene(new SceneDemo);
                 return;
