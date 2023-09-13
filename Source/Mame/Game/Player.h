@@ -56,12 +56,8 @@ private:
 public:
     ProjectileIconManager projectileIconManager_ = {};
 
-    DirectX::XMFLOAT3 bombDirection_ = {};
-
     float setInvincibleTime_  = 1.0f;
     float invincibleTimer_    = 0.0f;
-
-    float deathTimer_ = 0.0f;
 
 private:
     CloseRangeAttackSphere craSphere_ = {}; // ‹ßÚUŒ‚—p‚Ì‹…‘Ì

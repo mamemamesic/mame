@@ -1,5 +1,7 @@
 #include "EnemySlime.h"
 
+#include <random>
+
 #include "../Graphics/Graphics.h"
 #include "EnemyManager.h"
 #include "EnemyProjectileStraiteIcon.h"
@@ -70,6 +72,93 @@ void EnemySlime::Update(const float& elapsedTime)
 {
     using DirectX::XMFLOAT3;
     using DirectX::XMConvertToRadians;
+
+    if (this->hp_ <= 0)
+    {
+        // îöî≠ï˚å¸ê›íË
+        if (false == projectileIconManager_.isSetBombDirection_)
+        {
+            constexpr float randMin = -1.0f;
+            constexpr float randMax = 1.0f;
+            std::random_device rd = {};
+            std::default_random_engine eng(rd());
+            std::uniform_real_distribution<> distr(randMin, randMax);
+
+            float directionX = static_cast<float>(distr(eng));
+            float directionY = static_cast<float>(distr(eng));
+            float directionZ = static_cast<float>(distr(eng));
+
+            // ìGÇÃîöî≠ï˚å¸ê›íË
+            {
+                this->bombDirection_ = { directionX, 0.5f, directionZ };
+            }
+
+            // íeä€ÉAÉCÉRÉìÇÃîöî≠ï˚å¸ê›íË
+            {
+                const int projectileIconCount = projectileIconManager_.GetProjectileIconCount();
+                for (int i = 0; i < projectileIconCount; ++i)
+                {
+                    const int projectileIconRenderLimit = projectileIconManager_.projectileIconRenderLimit_;
+                    if (i >= projectileIconRenderLimit) break;
+
+                    ProjectileIcon* projectileIcon = projectileIconManager_.GetProjectileIcon(i);
+
+                    directionX = static_cast<float>(distr(eng));
+                    directionY = static_cast<float>(distr(eng));
+                    directionZ = static_cast<float>(distr(eng));
+                    projectileIcon->bombDirection_ = { directionX, directionY, directionZ };
+
+                    // ë∂ç›Ç∑ÇÈíeä€Çè¡ãé
+                    projectileIcon->projectileManager_.Clear();
+                }
+            }
+
+            projectileIconManager_.isSetBombDirection_ = true;
+        }
+
+        // îöî≠ï˚å¸Ç…îÚÇŒÇ∑
+        {
+            constexpr float bombSpeed = 11.0f;
+            XMFLOAT3 bomb = {
+                bombSpeed * this->bombDirection_.x * elapsedTime,
+                bombSpeed * this->bombDirection_.y * elapsedTime,
+                bombSpeed * this->bombDirection_.z * elapsedTime,
+            };
+            this->GetTransform()->AddPosition(bomb);
+
+            constexpr float addRotate = DirectX::XMConvertToRadians(180.0f);
+            this->GetTransform()->AddRotationX(addRotate * elapsedTime);
+            this->GetTransform()->AddRotationY(addRotate * elapsedTime);
+            this->GetTransform()->AddRotationZ(addRotate * elapsedTime);
+
+            const int projectileIconCount = projectileIconManager_.GetProjectileIconCount();
+            for (int i = 0; i < projectileIconCount; ++i)
+            {
+                const int projectileIconRenderLimit = projectileIconManager_.projectileIconRenderLimit_;
+                if (i >= projectileIconRenderLimit) break;
+
+                ProjectileIcon* projectileIcon = projectileIconManager_.GetProjectileIcon(i);
+                Transform* projIconTransform = projectileIcon->GetTransform();
+
+                bomb = {
+                    bombSpeed * projectileIcon->bombDirection_.x * elapsedTime,
+                    bombSpeed * projectileIcon->bombDirection_.y * elapsedTime,
+                    bombSpeed * projectileIcon->bombDirection_.z * elapsedTime,
+                };
+                projIconTransform->AddPosition(bomb);
+            }
+        }
+
+        this->deathTimer_ += elapsedTime;
+        if (deathTimer_ >= 4.0f)
+        {
+            EnemyManager::Instance().Remove(this);
+            return;
+        }
+
+        return;
+    }
+
 
     Enemy::Update(elapsedTime);
 
@@ -232,6 +321,8 @@ void EnemySlime::CollisionEnemyVsPlayer()
     {
         --player->hp_;
         player->invincibleTimer_ = player->setInvincibleTime_;
+
+        --this->hp_;
 
         return;
     }

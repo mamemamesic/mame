@@ -56,6 +56,10 @@ public:
     int maxHp_ = 5;
     int hp_    = maxHp_;
 
+    DirectX::XMFLOAT3 bombDirection_ = {};
+
+    float deathTimer_ = 0.0f;
+
 private:
     Transform collisionSqhereTransform{};
     float range = 1.0f;                     // ‹…“–‚½‚è”»’è”¼Œa

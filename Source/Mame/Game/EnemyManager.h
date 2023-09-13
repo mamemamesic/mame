@@ -73,14 +73,14 @@ public:
         { (3.0f *  4.0f), EnemyType::Normal, { -2.0f, 0.25f, 50.0f }, 1, 3 }, // 4
         { (3.0f *  5.0f), EnemyType::Normal, {  2.0f, 0.25f, 50.0f }, 1, 3 }, // 5
         { (3.0f *  6.0f), EnemyType::Normal, {  1.0f, 0.25f, 50.0f }, 1, 3 }, // 6
-        { (3.0f *  7.0f), EnemyType::Normal, { -1.0f, 0.25f, 50.0f }, 4, 6 }, // 7
-        { (3.0f *  8.0f), EnemyType::Normal, {  2.0f, 0.25f, 50.0f }, 2, 3 }, // 8
-        { (3.0f *  9.0f), EnemyType::Normal, {  1.0f, 0.25f, 50.0f }, 2, 3 }, // 9
-        { (3.0f * 10.0f), EnemyType::Normal, { -2.0f, 0.25f, 50.0f }, 2, 3 }, // 10
+        { (3.0f *  7.0f), EnemyType::Normal, { -1.0f, 0.25f, 50.0f }, 4, 8 }, // 7
+        { (3.0f *  8.0f), EnemyType::Normal, {  2.0f, 0.25f, 50.0f }, 2, 6 }, // 8
+        { (3.0f *  9.0f), EnemyType::Normal, {  1.0f, 0.25f, 50.0f }, 2, 6 }, // 9
+        { (3.0f * 10.0f), EnemyType::Normal, { -2.0f, 0.25f, 50.0f }, 2, 6 }, // 10
 
-        { (3.0f * 11.0f), EnemyType::Normal, { -2.0f, 0.25f, 50.0f }, 2, 3 }, // 11
-        { (3.0f * 12.0f), EnemyType::Normal, { -2.0f, 0.25f, 50.0f }, 2, 3 }, // 12
-        { (3.0f * 13.0f), EnemyType::Normal, { -2.0f, 0.25f, 50.0f }, 2, 3 }, // 13
+        { (3.0f * 11.0f), EnemyType::Normal, { -2.0f, 0.25f, 50.0f }, 2, 6 }, // 11
+        { (3.0f * 12.0f), EnemyType::Normal, { -2.0f, 0.25f, 50.0f }, 2, 6 }, // 12
+        { (3.0f * 13.0f), EnemyType::Normal, { -2.0f, 0.25f, 50.0f }, 2, 6 }, // 13
 
     };
 

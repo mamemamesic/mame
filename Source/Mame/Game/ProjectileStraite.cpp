@@ -82,7 +82,7 @@ void ProjectileStraite::CollisionProjectileVsEnemies()
     {
         Enemy* enemy = enemyManager.GetEnemy(i);
 
-        if (enemy->hp_ <= 0) return;
+        if (enemy->hp_ <= 0) continue;
 
         const XMFLOAT3& projectilePos = GetTransform()->GetPosition();
         const XMFLOAT3& enemyPos = enemy->GetTransform()->GetPosition();
@@ -103,10 +103,9 @@ void ProjectileStraite::CollisionProjectileVsEnemies()
                     ProjectileStraiteIcon* projStraiteIcon = new ProjectileStraiteIcon(&player->projectileIconManager_);
                     projStraiteIcon->GetTransform()->SetPosition(enemyPos);
 
-                    if (player->hp_ < player->maxHp_) ++player->hp_; // ‘Ì—Í‰ñ•œ
                 }
 
-                enemyManager.Remove(enemy);
+                if (player->hp_ < player->maxHp_) ++player->hp_; // ‘Ì—Í‰ñ•œ
             }
 
             --this->hp_;

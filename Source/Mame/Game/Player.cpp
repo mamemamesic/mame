@@ -93,7 +93,7 @@ void Player::Update(const float& elapsedTime)
 
             // プレイヤーの爆発方向設定
             {
-                this->bombDirection_ = { directionX, directionY, directionZ };
+                this->bombDirection_ = { directionX, 0.5f, directionZ };
             }
 
             // 弾丸アイコンの爆発方向設定
