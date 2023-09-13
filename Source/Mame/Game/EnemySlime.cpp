@@ -85,7 +85,6 @@ void EnemySlime::Update(const float& elapsedTime)
             std::uniform_real_distribution<> distr(randMin, randMax);
 
             float directionX = static_cast<float>(distr(eng));
-            float directionY = static_cast<float>(distr(eng));
             float directionZ = static_cast<float>(distr(eng));
 
             // “G‚Ì”š”­•ûŒüİ’è
@@ -104,9 +103,8 @@ void EnemySlime::Update(const float& elapsedTime)
                     ProjectileIcon* projectileIcon = projectileIconManager_.GetProjectileIcon(i);
 
                     directionX = static_cast<float>(distr(eng));
-                    directionY = static_cast<float>(distr(eng));
                     directionZ = static_cast<float>(distr(eng));
-                    projectileIcon->bombDirection_ = { directionX, directionY, directionZ };
+                    projectileIcon->bombDirection_ = { directionX, 0.5f, directionZ };
 
                     // ‘¶İ‚·‚é’eŠÛ‚ğÁ‹
                     projectileIcon->projectileManager_.Clear();
