@@ -60,6 +60,8 @@ public:
     float invincibleTimer_    = 0.0f;
 
 private:
+    std::unique_ptr<Model> shotRay_ = nullptr;
+
     CloseRangeAttackSphere craSphere_ = {}; // ‹ßÚUŒ‚—p‚Ì‹…‘Ì
     float sphereRadius_     = 0.5f;
     float sphereLifeTime_   = 0.5f;

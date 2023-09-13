@@ -359,6 +359,8 @@ void SceneDemo::Update(const float& elapsedTime)
 
             enemyManager.Register(enemySlime); // マネージャーに登録
 
+            enemyManager.timer_ = 0; // タイマーリセット
+
             ++index; // 次の敵配置に移行
         }
 

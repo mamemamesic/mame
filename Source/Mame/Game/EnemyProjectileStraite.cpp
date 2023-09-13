@@ -28,7 +28,11 @@ void EnemyProjectileStraite::Update(const float& elapsedTime)
 
     DirectX::XMFLOAT3 position = GetTransform()->GetPosition();
 
-    if (position.z <= -5.0f) Destroy();
+    if (position.z <= -5.0f)
+    {
+        Destroy();
+        return;
+    }
 
     // ˆÚ“®
     {

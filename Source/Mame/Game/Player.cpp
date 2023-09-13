@@ -29,6 +29,9 @@ Player::Player()
             //"./Resources/Model/sotai.fbx");
             //"./Resources/Model/sanaModel/mameoall.fbx");
             //"./Resources/Model/testModel/nico.fbx");
+
+        shotRay_ = std::make_unique<Model>(graphics.GetDevice(),
+            "./Resources/Model/sikaku.fbx");
     }
 
 }
@@ -41,9 +44,14 @@ Player::~Player()
 // 初期化
 void Player::Initialize()
 {
-    GetTransform()->SetPosition(DirectX::XMFLOAT3(0, 0.25f, 0));
+    Transform* transform = GetTransform();
+
+    transform->SetPosition(DirectX::XMFLOAT3(0, 0.25f, 0));
     debugSqhereOffset.y += offsetY_;
     //model->color = DirectX::XMFLOAT4(0.5f, 0.5f, 1.0f, 1.0f);
+
+    shotRay_->GetTransform()->SetScale(DirectX::XMFLOAT3(0.025f, 0.025f, 80.0f));
+    shotRay_->color = { 1.0f, 0.3f, 0.0f, 0.8f };
 
     Character::Initialize();
 
@@ -155,6 +163,13 @@ void Player::Update(const float& elapsedTime)
     Character::Update(elapsedTime); // キャラクター共通の更新処理
 
     Character::UpdateAnimation(elapsedTime); // アニメーション更新
+
+    // 射線位置更新
+    {
+        shotRay_->GetTransform()->SetPositionX(transform->GetPosition().x + 0.0075f);
+        shotRay_->GetTransform()->SetPositionY(transform->GetPosition().y - 0.25f);
+        shotRay_->GetTransform()->SetPositionZ(transform->GetPosition().z + 20.0f);
+    }
 
     // 移動
     {
@@ -364,7 +379,7 @@ void Player::Update(const float& elapsedTime)
     if (invincibleTimer_ > 0.0f)
     {
         const int timer = static_cast<int>(invincibleTimer_ * 100.0f);
-        model->color.w = (timer & 0x08) ? 0.1f : 1.0f;
+        model->color.w = (timer & 0x08) ? 0.4f : 1.0f;
 
         invincibleTimer_ -= elapsedTime; // 無敵時間減少
     }
@@ -386,6 +401,8 @@ void Player::Render(const float& elapsedTime, const float& scale)
     using DirectX::XMFLOAT4;
 
     Character::Render(elapsedTime, scale);
+
+    if (this->hp_ > 0) shotRay_->Render(scale);
 
     projectileIconManager_.Render(0.1f);
 
@@ -411,7 +428,13 @@ void Player::DrawDebug()
     {
         Character::DrawDebug();
 
-        projectileIconManager_.DrawDebug();
+        if (ImGui::TreeNode("shotRay_"))
+        {
+            shotRay_->DrawDebug();
+            ImGui::TreePop();
+        }
+
+        //projectileIconManager_.DrawDebug();
 
         float range = GetRange();
         ImGui::DragFloat("range", &range);

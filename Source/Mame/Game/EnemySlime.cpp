@@ -157,7 +157,6 @@ void EnemySlime::Update(const float& elapsedTime)
         return;
     }
 
-
     Enemy::Update(elapsedTime);
 
     Character::UpdateAnimation(elapsedTime);
@@ -165,6 +164,11 @@ void EnemySlime::Update(const float& elapsedTime)
     // ˆÚ“®
     {
         XMFLOAT3 pos = GetTransform()->GetPosition();
+        if (pos.z <= -5.0f)
+        {
+            EnemyManager::Instance().Remove(this);
+            return;
+        }
 
         pos.z += speed.z * elapsedTime;
 
@@ -319,8 +323,6 @@ void EnemySlime::CollisionEnemyVsPlayer()
     {
         --player->hp_;
         player->invincibleTimer_ = player->setInvincibleTime_;
-
-        --this->hp_;
 
         return;
     }
